@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.qait.mathplaynlearn.dao.UserDao;
 import com.qait.mathplaynlearn.domain.User;
+import com.qait.mathplaynlearn.exception.MathPlayNLearnException;
 import com.qait.mathplaynlearn.util.MathPlayNLearnUtil;
 
 @Repository("userDao")
@@ -28,6 +29,7 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 		} catch (Exception e) {
 			transaction.rollback();
 			userSaved = false;
+			e.printStackTrace();
 			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
 		} finally {
 			session.flush();
@@ -65,6 +67,27 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 			query.setString("id", id);
 			user = (User) query.uniqueResult();
 		} catch (Exception e) {
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+		} finally {
+			session.close();
+		}
+		return user;
+	}
+	
+	@Override
+	public User authenticateUser(String userId, String password) {
+		Session session = null;
+		User user = null;
+		try {
+			session = getSessionFactory().openSession();
+			String queryString = "from User where userID = :userId and password = :pwd";
+			Query query = session.createQuery(queryString);
+			query.setString("userId", userId);
+			query.setString("pwd", password);
+			user = (User) query.uniqueResult();
+		} catch (Exception e) {
+			logger.info("Login falied for userId=" + userId + " and Password="
+					+ "" + password);
 			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
 		} finally {
 			session.close();

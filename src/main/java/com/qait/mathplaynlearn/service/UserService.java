@@ -7,4 +7,6 @@ import com.qait.mathplaynlearn.domain.User;
 public interface UserService {
 
 	public Response saveUser(User user);
+	
+	public Response authenticateUser(String userId, String password);
 }

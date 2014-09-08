@@ -19,30 +19,17 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private UserDao userDao;
-
-/*	@Override
-	public UserStatus saveUser(User user) {
-		UserStatus status = UserStatus.SUCCESSFUL;
-		if(userDao.getUserByUserId(user.getUserID()) == null) {
-			status = UserStatus.USER_ID_EXISTS;
-		} else if(userDao.getUserByEmail(user.getEmail()) == null) {
-			status = UserStatus.EMAIL_EXISTS;
-		} else if(!userDao.saveUser(user)) {
-			status = UserStatus.UNSUCCESSFUL;
-		}
-		return status;
-	}*/
 	
 	public Response saveUser(User user) {
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
 		response.setCode("rsgisterUser001");
 		String status = MathPlayPropertiesFileReaderUtil
 				.getPropertyValue("rsgisterUser001");
-		if (userDao.getUserByUserId(user.getUserID()) == null) {
+		if (userDao.getUserByUserId(user.getUserID()) != null) {
 			response.setCode("rsgisterUser003");
 			status = MathPlayPropertiesFileReaderUtil
 					.getPropertyValue("rsgisterUser003");
-		} else if (userDao.getUserByEmail(user.getEmail()) == null) {
+		} else if (userDao.getUserByEmail(user.getEmail()) != null) {
 			response.setCode("rsgisterUser004");
 			status = MathPlayPropertiesFileReaderUtil
 					.getPropertyValue("rsgisterUser004");
@@ -56,6 +43,23 @@ public class UserServiceImpl implements UserService {
 		return Response.status(200).entity(response).build();
 	}
 
+	
+	@Override
+	public Response authenticateUser(String userId, String password) {
+		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
+		if (userDao.authenticateUser(userId, password) != null) {
+			response.setCode("signIn001");
+			response.setMessage(MathPlayPropertiesFileReaderUtil
+					.getPropertyValue("signIn001"));
+		} else {
+			response.setCode("signIn002");
+			response.setMessage(MathPlayPropertiesFileReaderUtil
+					.getPropertyValue("signIn002"));
+		}
+
+		return Response.status(200).entity(response).build();
+	}
+	
 	public UserDao getUserDao() {
 		return userDao;
 	}

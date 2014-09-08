@@ -5,6 +5,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -20,7 +21,7 @@ public class MathPlayNLearnService {
 
 	private static final Logger logger = Logger
 			.getLogger(MathPlayNLearnService.class);
-	
+
 	ApplicationContext appContext = new ClassPathXmlApplicationContext(
 			"../applicationContext.xml");
 
@@ -40,5 +41,17 @@ public class MathPlayNLearnService {
 				.getBean("userService");
 		return userService.saveUser(user);
 	}
+	
 
+
+	@POST
+	@Path("sign-in")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response authinticateUser(User user) {
+		UserService userService = (UserService) appContext
+				.getBean("userService");
+		return userService.authenticateUser(user.getUserID(),
+				user.getPassword());
+	}
 }

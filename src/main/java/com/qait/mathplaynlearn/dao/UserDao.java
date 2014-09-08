@@ -9,4 +9,6 @@ public interface UserDao {
 	public User getUserByEmail(String email);
 	
 	public User getUserByUserId(String email);
+	
+	public User authenticateUser(String userId, String password);
 }
