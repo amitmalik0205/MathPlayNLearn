@@ -1,5 +1,7 @@
 package com.qait.mathplaynlearn.service.impl;
 
+import java.util.List;
+
 import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
@@ -42,22 +44,20 @@ public class UserServiceImpl implements UserService {
 		response.setMessage(status);
 		return Response.status(200).entity(response).build();
 	}
-
 	
 	@Override
-	public Response authenticateUser(String userId, String password) {
-		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
-		if (userDao.authenticateUser(userId, password) != null) {
-			response.setCode("signIn001");
-			response.setMessage(MathPlayPropertiesFileReaderUtil
-					.getPropertyValue("signIn001"));
-		} else {
-			response.setCode("signIn002");
-			response.setMessage(MathPlayPropertiesFileReaderUtil
-					.getPropertyValue("signIn002"));
-		}
-
-		return Response.status(200).entity(response).build();
+	public User authenticateUser(String userId, String password) {
+		return userDao.authenticateUser(userId, password);
+	}
+	
+	@Override
+	public List<Object[]> getMatchingUserID(String str) {
+		return userDao.getMatchingUserID(str);
+	}
+	
+	@Override
+	public User getUserByUserId(String userId) {
+		return userDao.getUserByUserId(userId);
 	}
 	
 	public UserDao getUserDao() {

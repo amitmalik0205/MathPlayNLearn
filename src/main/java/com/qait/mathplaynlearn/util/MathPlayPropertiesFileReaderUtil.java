@@ -8,8 +8,6 @@ import org.apache.log4j.Logger;
 
 import com.qait.mathplaynlearn.exception.MathPlayNLearnException;
 
-
-
 /**
  * This class defines a utility to read the property file of constants.
  */
@@ -19,11 +17,11 @@ public class MathPlayPropertiesFileReaderUtil {
 			.getLogger(MathPlayPropertiesFileReaderUtil.class);
 	private static Properties properties = System.getProperties();
 
-	
 	public static String getPropertyValue(String key) {
 		try {
-			properties.load(MathPlayPropertiesFileReaderUtil.class.getClassLoader()
-					.getResourceAsStream("properties/message.properties"));
+			properties.load(MathPlayPropertiesFileReaderUtil.class
+					.getClassLoader().getResourceAsStream(
+							"properties/message.properties"));
 		} catch (FileNotFoundException e) {
 			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
 			throw new MathPlayNLearnException();
@@ -35,6 +33,43 @@ public class MathPlayPropertiesFileReaderUtil {
 				.getProperty(key).trim() : "";
 	}
 
+	/*
+	 * Get property values for Email
+	 */
 
+	public static String getEmailProperty(String key) {
+		try {
+			properties.load(MathPlayPropertiesFileReaderUtil.class
+					.getClassLoader().getResourceAsStream(
+							"properties/mailserver.properties"));
+		} catch (FileNotFoundException e) {
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+			throw new MathPlayNLearnException();
+		} catch (IOException e) {
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+			throw new MathPlayNLearnException();
+		}
+		return properties.getProperty(key) != null ? properties
+				.getProperty(key).trim() : "";
+	}
+
+	/*
+	 * Get property value for velocity templates
+	 */
+	public static String getVelocityTemplateProperties(String key) {
+		try {
+			properties.load(MathPlayPropertiesFileReaderUtil.class
+					.getClassLoader().getResourceAsStream(
+							"properties/velocity.properties"));
+		} catch (FileNotFoundException e) {
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+			throw new MathPlayNLearnException();
+		} catch (IOException e) {
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+			throw new MathPlayNLearnException();
+		}
+		return properties.getProperty(key) != null ? properties
+				.getProperty(key).trim() : "";
+	}
 
 }

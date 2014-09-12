@@ -1,5 +1,8 @@
 package com.qait.mathplaynlearn.dao.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -8,7 +11,6 @@ import org.springframework.stereotype.Repository;
 
 import com.qait.mathplaynlearn.dao.UserDao;
 import com.qait.mathplaynlearn.domain.User;
-import com.qait.mathplaynlearn.exception.MathPlayNLearnException;
 import com.qait.mathplaynlearn.util.MathPlayNLearnUtil;
 
 @Repository("userDao")
@@ -93,5 +95,22 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 			session.close();
 		}
 		return user;
+	}
+	
+	@Override
+	public List<Object[]> getMatchingUserID(String str) {
+		List<Object[]> list = new ArrayList<Object[]>();
+		Session session =null;
+		try {
+			session = getSessionFactory().openSession();
+			String queryString = "Select u.userID from User u where u.userID like '"+str+"%'";
+			Query query = session.createQuery(queryString);
+			list = query.list();
+		} catch (Exception e) {
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+		} finally {
+			session.close();
+		}
+		return list;
 	}
 }
