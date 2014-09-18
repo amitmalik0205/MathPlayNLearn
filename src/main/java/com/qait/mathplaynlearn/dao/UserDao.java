@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.qait.mathplaynlearn.domain.User;
 
-public interface UserDao {
+public interface UserDao extends GenericDao<User, Long> {
 
 	public boolean saveUser(User user);
 	

@@ -31,10 +31,6 @@ public class UserServiceImpl implements UserService {
 			response.setCode("rsgisterUser003");
 			status = MathPlayPropertiesFileReaderUtil
 					.getPropertyValue("rsgisterUser003");
-		} else if (userDao.getUserByEmail(user.getEmail()) != null) {
-			response.setCode("rsgisterUser004");
-			status = MathPlayPropertiesFileReaderUtil
-					.getPropertyValue("rsgisterUser004");
 		} else if (!userDao.saveUser(user)) {
 			response.setCode("rsgisterUser002");
 			status = MathPlayPropertiesFileReaderUtil

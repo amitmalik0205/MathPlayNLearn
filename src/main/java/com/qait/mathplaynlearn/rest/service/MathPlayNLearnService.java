@@ -15,9 +15,12 @@ import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.qait.mathplaynlearn.domain.Group;
 import com.qait.mathplaynlearn.domain.User;
 import com.qait.mathplaynlearn.dto.SendPasswordDTO;
 import com.qait.mathplaynlearn.enums.EmailType;
+import com.qait.mathplaynlearn.service.GroupService;
+import com.qait.mathplaynlearn.service.SecurityQuestionService;
 import com.qait.mathplaynlearn.service.UserService;
 import com.qait.mathplaynlearn.util.EmailUtil;
 import com.qait.mathplaynlearn.util.MathPlayPropertiesFileReaderUtil;
@@ -36,6 +39,16 @@ public class MathPlayNLearnService {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String text() {
 		return "Its working";
+	}
+	
+	@GET
+	@Path("get-security-questions")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getSecurityQuestions() {
+		SecurityQuestionService questionService = (SecurityQuestionService) appContext
+				.getBean("securityQuestionService");
+		return Response.status(200).entity(questionService.getAllQuestions())
+				.build();
 	}
 
 	@POST
@@ -97,33 +110,102 @@ public class MathPlayNLearnService {
 	@Path("recover-password")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response recoverPassword(String userID) {
-		UserService userService = (UserService) appContext.getBean("userService");
+	public Response recoverPassword(User user) {
+		UserService userService = (UserService) appContext
+				.getBean("userService");
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
-		
-		User savedUser = userService.getUserByUserId(userID);
-		if(savedUser == null) {
-			
+
+		User savedUser = userService.getUserByUserId(user.getUserID());
+		if (savedUser == null) {
+
 			response.setCode("recoverPassword002");
-			response.setMessage(MathPlayPropertiesFileReaderUtil.getPropertyValue("recoverPassword002"));
-			
+			response.setMessage(MathPlayPropertiesFileReaderUtil
+					.getPropertyValue("recoverPassword002"));
+
 		} else {
-			
+
 			SendPasswordDTO templateModel = new SendPasswordDTO();
 			templateModel.setUserID(savedUser.getUserID());
 			templateModel.setPassword(savedUser.getPassword());
-			
-			boolean isEmailSent = EmailUtil.sendEmail(MathPlayPropertiesFileReaderUtil.getVelocityTemplateProperties("send.password.email.subject"), savedUser.getEmail(), EmailType.SEND_PASSWORD, templateModel);
-			
-			if(isEmailSent) {
+
+			boolean isEmailSent = EmailUtil
+					.sendEmail(
+							MathPlayPropertiesFileReaderUtil
+									.getVelocityTemplateProperties("send.password.email.subject"),
+							savedUser.getEmail(), EmailType.SEND_PASSWORD,
+							templateModel);
+
+			if (isEmailSent) {
 				response.setCode("recoverPassword001");
-				response.setMessage(MathPlayPropertiesFileReaderUtil.getPropertyValue("recoverPassword001"));
+				response.setMessage(MathPlayPropertiesFileReaderUtil
+						.getPropertyValue("recoverPassword001"));
 			} else {
 				response.setCode("recoverPassword003");
-				response.setMessage(MathPlayPropertiesFileReaderUtil.getPropertyValue("recoverPassword003"));
+				response.setMessage(MathPlayPropertiesFileReaderUtil
+						.getPropertyValue("recoverPassword003"));
 			}
 		}
-		
+
+		return Response.status(200).entity(response).build();
+	}
+	
+	/**
+	 * Creates new group
+	 * @param userID - Owner of the group
+	 * @param groupName - Name of the group
+	 * @return
+	 */
+	@GET
+	@Path("create-group")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response createGroup(@QueryParam("userID") String userID,
+			@QueryParam("groupName") String groupName) {
+
+		UserService userService = (UserService) appContext
+				.getBean("userService");
+		GroupService groupService = (GroupService) appContext
+				.getBean("groupService");
+		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
+
+		User user = userService.getUserByUserId(userID);
+		if (user == null) {
+
+			response.setCode("createGroup004");
+			response.setMessage(MathPlayPropertiesFileReaderUtil
+					.getPropertyValue("createGroup004"));
+
+		} else {
+
+			Group savedGroup = groupService.getGroupByGroupName(groupName);
+			if (savedGroup != null) {
+
+				response.setCode("createGroup003");
+				response.setMessage(MathPlayPropertiesFileReaderUtil
+						.getPropertyValue("createGroup003"));
+
+			} else {
+
+				Group newGroup = new Group();
+				newGroup.setGroupName(groupName);
+				newGroup.setGroupOwner(user);
+				boolean isGroupSaved = groupService.saveGroup(newGroup);
+
+				if (isGroupSaved) {
+
+					response.setCode("createGroup001");
+					response.setMessage(MathPlayPropertiesFileReaderUtil
+							.getPropertyValue("createGroup001"));
+
+				} else {
+
+					response.setCode("createGroup002");
+					response.setMessage(MathPlayPropertiesFileReaderUtil
+							.getPropertyValue("createGroup002"));
+				}
+			}
+		}
+
 		return Response.status(200).entity(response).build();
 	}
 }

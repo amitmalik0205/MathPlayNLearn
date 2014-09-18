@@ -31,7 +31,6 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 		} catch (Exception e) {
 			transaction.rollback();
 			userSaved = false;
-			e.printStackTrace();
 			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
 		} finally {
 			session.flush();
@@ -69,6 +68,7 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 			query.setString("id", id);
 			user = (User) query.uniqueResult();
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
 		} finally {
 			session.close();

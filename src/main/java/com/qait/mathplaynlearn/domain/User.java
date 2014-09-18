@@ -1,11 +1,17 @@
 package com.qait.mathplaynlearn.domain;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -22,11 +28,21 @@ public class User implements Serializable {
 	@Column(name = "userId", unique = true, nullable = false)
 	private String userID;
 	
-	@Column(name = "password", unique = true, nullable = false)
+	@Column(name = "password", nullable = false)
 	private String password;
 	
-	@Column(name = "email", unique = true, nullable = false)
+	@Column(name = "email")
 	private String email;
+	
+	@Column(name = "answer", nullable = false)
+	private String answer;
+	
+	@OneToMany(mappedBy = "groupOwner")
+	private Set<Group> groups = new HashSet<Group>();
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="question_id")
+	private SecurityQuestion securityQuestion;
 
 	public Long getId() {
 		return id;
@@ -58,5 +74,29 @@ public class User implements Serializable {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public Set<Group> getGroups() {
+		return groups;
+	}
+
+	public void setGroups(Set<Group> groups) {
+		this.groups = groups;
+	}
+	
+	public String getAnswer() {
+		return answer;
+	}
+
+	public void setAnswer(String answer) {
+		this.answer = answer;
+	}
+
+	public SecurityQuestion getSecurityQuestion() {
+		return securityQuestion;
+	}
+
+	public void setSecurityQuestion(SecurityQuestion securityQuestion) {
+		this.securityQuestion = securityQuestion;
 	}
 }
