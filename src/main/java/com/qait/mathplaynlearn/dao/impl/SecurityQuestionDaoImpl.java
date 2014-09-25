@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.qait.mathplaynlearn.dao.SecurityQuestionDao;
 import com.qait.mathplaynlearn.domain.SecurityQuestion;
+import com.qait.mathplaynlearn.domain.User;
 import com.qait.mathplaynlearn.util.MathPlayNLearnUtil;
 
 @Repository("securityQuestionDao")
@@ -34,4 +35,22 @@ public class SecurityQuestionDaoImpl extends GenericDaoImpl<SecurityQuestion, Lo
 		
 		return list;
 	}
+	
+	@Override
+	public SecurityQuestion getQuestionById(Long questionId) {
+		SecurityQuestion question = null;
+		Session session = null;
+		try {
+			session = getSessionFactory().openSession();
+			question = (SecurityQuestion) session.load(SecurityQuestion.class,
+					questionId);
+		} catch (Exception e) {
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+		} finally {
+			session.close();
+		}
+
+		return question;
+	}
+	
 }

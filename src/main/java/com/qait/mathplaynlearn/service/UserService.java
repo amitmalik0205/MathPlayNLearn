@@ -15,4 +15,6 @@ public interface UserService {
 	public List<Object[]> getMatchingUserID(String str);
 	
 	public User getUserByUserId(String userId);
+	
+	public User getUserWithSecurityQuestion(String userId);
 }

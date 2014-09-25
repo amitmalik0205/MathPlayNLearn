@@ -113,4 +113,22 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 		}
 		return list;
 	}
+	
+	@Override
+	public User getUserWithSecurityQuestion(String userId) {
+		User user = null;
+		Session session = null;
+		try {
+			session = getSessionFactory().openSession();
+			String queryString = "from User u join fetch u.securityQuestion where u.userID = :userId";
+			Query query = session.createQuery(queryString);
+			query.setParameter("userId", userId);
+			user = (User)query.list().get(0);
+		} catch (Exception e) {
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+		} finally {
+			session.close();
+		}
+		return user;
+	}
 }

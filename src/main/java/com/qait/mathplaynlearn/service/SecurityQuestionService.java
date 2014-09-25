@@ -7,4 +7,6 @@ import com.qait.mathplaynlearn.domain.SecurityQuestion;
 public interface SecurityQuestionService {
 
 	public List<SecurityQuestion> getAllQuestions();
+	
+	public SecurityQuestion getQuestionById(Long questionId);
 }

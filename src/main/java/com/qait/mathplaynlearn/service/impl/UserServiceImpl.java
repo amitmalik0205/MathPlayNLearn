@@ -56,6 +56,11 @@ public class UserServiceImpl implements UserService {
 		return userDao.getUserByUserId(userId);
 	}
 	
+	@Override
+	public User getUserWithSecurityQuestion(String userId) {
+		return userDao.getUserWithSecurityQuestion(userId);
+	}
+	
 	public UserDao getUserDao() {
 		return userDao;
 	}

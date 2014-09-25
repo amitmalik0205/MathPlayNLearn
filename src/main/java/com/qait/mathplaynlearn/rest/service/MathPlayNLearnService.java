@@ -16,13 +16,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.qait.mathplaynlearn.domain.Group;
+import com.qait.mathplaynlearn.domain.SecurityQuestion;
 import com.qait.mathplaynlearn.domain.User;
-import com.qait.mathplaynlearn.dto.SendPasswordDTO;
-import com.qait.mathplaynlearn.enums.EmailType;
 import com.qait.mathplaynlearn.service.GroupService;
 import com.qait.mathplaynlearn.service.SecurityQuestionService;
 import com.qait.mathplaynlearn.service.UserService;
-import com.qait.mathplaynlearn.util.EmailUtil;
 import com.qait.mathplaynlearn.util.MathPlayPropertiesFileReaderUtil;
 
 @Path("math-play-service")
@@ -39,6 +37,24 @@ public class MathPlayNLearnService {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String text() {
 		return "Its working";
+	}
+	
+	@GET
+	@Path("xml-test")
+	@Produces(MediaType.APPLICATION_XML)
+	public Customer XMLTest() {
+		Customer customer = new Customer();
+		customer.setId(42);
+		customer.setName("Amit Malik");
+		customer.setAge(28);
+		
+		Address address = new Address();
+		address.setCity("Delhi");
+		address.setCountry("India");
+		
+		customer.setAddress(address);
+		
+		return customer;
 	}
 	
 	@GET
@@ -101,11 +117,61 @@ public class MathPlayNLearnService {
 		return Response.status(200).entity(list).build();
 	}
 
+	
+	@POST
+	@Path("recover-password")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response recoverPassword(User user) {
+		UserService userService = (UserService) appContext
+				.getBean("userService");
+		
+		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
+
+		User savedUser = userService.getUserWithSecurityQuestion(user.getUserID());
+		if (savedUser == null) {
+
+			response.setCode("recoverPassword002");
+			response.setMessage(MathPlayPropertiesFileReaderUtil
+					.getPropertyValue("recoverPassword002"));
+
+		} else {
+			
+			SecurityQuestion savedQuestion = savedUser.getSecurityQuestion();
+			SecurityQuestion question = user.getSecurityQuestion();
+
+			if (question.getQuestionId().equals(savedQuestion.getQuestionId())) {
+
+				if (savedUser.getAnswer().replaceAll("\\s","").equalsIgnoreCase(user.getAnswer().replaceAll("\\s",""))) {
+
+					response.setCode("recoverPassword001");
+					response.setMessage(MathPlayPropertiesFileReaderUtil
+							.getPropertyValue("recoverPassword001")
+							+ " "
+							+ savedUser.getPassword());
+
+				} else {
+
+					response.setCode("recoverPassword004");
+					response.setMessage(MathPlayPropertiesFileReaderUtil
+							.getPropertyValue("recoverPassword004"));
+				}
+
+			} else {
+				response.setCode("recoverPassword003");
+				response.setMessage(MathPlayPropertiesFileReaderUtil
+						.getPropertyValue("recoverPassword003"));
+			}
+		}
+
+		return Response.status(200).entity(response).build();
+	}
+	
 	/**
 	 * Service will send email to the registered email ID.
 	 * @param userID
 	 * @return
-	 */
+	 *//*
 	@POST
 	@Path("recover-password")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -147,7 +213,7 @@ public class MathPlayNLearnService {
 		}
 
 		return Response.status(200).entity(response).build();
-	}
+	}*/
 	
 	/**
 	 * Creates new group

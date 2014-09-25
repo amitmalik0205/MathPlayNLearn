@@ -26,4 +26,8 @@ public class SecurityQuestionServiceImpl implements SecurityQuestionService {
 	public void setQuestionDao(SecurityQuestionDao questionDao) {
 		this.questionDao = questionDao;
 	}
+	
+	public SecurityQuestion getQuestionById(Long questionId) {
+		return questionDao.getQuestionById(questionId);
+	}
 }
