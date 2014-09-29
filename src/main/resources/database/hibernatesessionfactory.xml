@@ -25,6 +25,8 @@
 				<value>com.qait.mathplaynlearn.domain.User</value>
 				<value>com.qait.mathplaynlearn.domain.Group</value>
 				<value>com.qait.mathplaynlearn.domain.SecurityQuestion</value>
+				<value>com.qait.mathplaynlearn.domain.Game</value>
+				<value>com.qait.mathplaynlearn.domain.GameDetails</value>
 			</list>
 		</property>
 	</bean>

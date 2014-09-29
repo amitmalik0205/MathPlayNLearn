@@ -15,9 +15,14 @@ import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.qait.mathplaynlearn.domain.Game;
+import com.qait.mathplaynlearn.domain.GameDetails;
 import com.qait.mathplaynlearn.domain.Group;
 import com.qait.mathplaynlearn.domain.SecurityQuestion;
 import com.qait.mathplaynlearn.domain.User;
+import com.qait.mathplaynlearn.rest.dto.GameDetailsDTO;
+import com.qait.mathplaynlearn.service.GameDetailsService;
+import com.qait.mathplaynlearn.service.GameService;
 import com.qait.mathplaynlearn.service.GroupService;
 import com.qait.mathplaynlearn.service.SecurityQuestionService;
 import com.qait.mathplaynlearn.service.UserService;
@@ -214,6 +219,91 @@ public class MathPlayNLearnService {
 
 		return Response.status(200).entity(response).build();
 	}*/
+	
+	
+	@POST
+	@Path("save-game-score")
+	@Consumes(value = MediaType.APPLICATION_JSON)
+	@Produces(value = MediaType.APPLICATION_JSON)
+	public Response saveUserGameScore(GameDetailsDTO details) {
+
+		GameDetailsService detailsService = (GameDetailsService) appContext
+				.getBean("gameDetailsService");
+		UserService userService = (UserService) appContext
+				.getBean("userService");
+		GameService gameService = (GameService) appContext
+				.getBean("gameService");
+
+		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
+
+		response.setCode("saveUserScore001");
+		response.setMessage(MathPlayPropertiesFileReaderUtil
+				.getPropertyValue("saveUserScore001"));
+
+		User savedUser = userService.getUserByUserId(details.getUserID());
+
+		if (savedUser == null) {
+			response.setCode("saveUserScore003");
+			response.setMessage(MathPlayPropertiesFileReaderUtil
+					.getPropertyValue("saveUserScore003"));
+		} else {
+
+			boolean isError = false;
+			String gameName = details.getGameName();
+			String gameClass = details.getGameClass();
+			Game savedGame = gameService.getGameByNameAndClass(gameName,
+					gameClass);
+
+			if (savedGame == null) {
+				Game newGame = new Game();
+				newGame.setGameClass(gameClass);
+				newGame.setGameName(gameName);
+
+				boolean isGameSaved = gameService.saveGame(newGame);
+
+				if (isGameSaved) {
+					savedGame = gameService.getGameByNameAndClass(gameName,
+							gameClass);
+
+				} else {
+					isError = true;
+					response.setCode("saveUserScore004");
+					response.setMessage(MathPlayPropertiesFileReaderUtil
+							.getPropertyValue("saveUserScore004"));
+				}
+			}
+
+			if (!isError) {
+
+				boolean isSaved = false;
+				GameDetails savedGameDetails = detailsService
+						.getGameDetailsByUserAndGame(savedUser.getId(),
+								savedGame.getGameId());
+
+				if (savedGameDetails == null) {
+					GameDetails gameDetails = new GameDetails();
+					gameDetails.setGame(savedGame);
+					gameDetails.setUser(savedUser);
+					gameDetails.setLevel(details.getLevel());
+					gameDetails.setUserScore(details.getUserScore());
+					isSaved = detailsService.saveGameDetails(gameDetails);
+
+				} else {
+					savedGameDetails.setLevel(details.getLevel());
+					savedGameDetails.setUserScore(details.getUserScore());
+					isSaved = detailsService.saveGameDetails(savedGameDetails);
+				}
+
+				if (!isSaved) {
+					response.setCode("saveUserScore002");
+					response.setMessage(MathPlayPropertiesFileReaderUtil
+							.getPropertyValue("saveUserScore002"));
+				}
+			}
+		}
+		return Response.status(200).entity(response).build();
+	}
+	
 	
 	/**
 	 * Creates new group
