@@ -1,5 +1,7 @@
 package com.qait.mathplaynlearn.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,14 +14,24 @@ public class GroupServiceImpl implements GroupService {
 
 	@Autowired
 	private GroupDao groupDao;
-	
+
 	@Override
 	public boolean saveGroup(Group group) {
 		return groupDao.saveGroup(group);
 	}
-	
+
 	@Override
 	public Group getGroupByGroupName(String groupName) {
 		return groupDao.getGroupByGroupName(groupName);
+	}
+
+	@Override
+	public List<Group> getGroupListForOwner(String ownerID) {
+		return groupDao.getGroupListForOwner(ownerID);
+	}
+
+	@Override
+	public Group getGroupByGroupId(long groupID) {
+		return groupDao.getGroupByGroupId(groupID);
 	}
 }

@@ -1,5 +1,6 @@
 package com.qait.mathplaynlearn.rest.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -18,8 +19,12 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.qait.mathplaynlearn.domain.Game;
 import com.qait.mathplaynlearn.domain.GameDetails;
 import com.qait.mathplaynlearn.domain.Group;
+import com.qait.mathplaynlearn.domain.GroupMember;
 import com.qait.mathplaynlearn.domain.SecurityQuestion;
 import com.qait.mathplaynlearn.domain.User;
+import com.qait.mathplaynlearn.dto.GroupDTO;
+import com.qait.mathplaynlearn.dto.GroupMemberDTO;
+import com.qait.mathplaynlearn.enums.MemberStatus;
 import com.qait.mathplaynlearn.rest.dto.GameDetailsDTO;
 import com.qait.mathplaynlearn.service.GameDetailsService;
 import com.qait.mathplaynlearn.service.GameService;
@@ -360,6 +365,65 @@ public class MathPlayNLearnService {
 							.getPropertyValue("createGroup002"));
 				}
 			}
+		}
+
+		return Response.status(200).entity(response).build();
+	}
+	
+	@GET
+	@Path("group-list-for-owner")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getGroupList(@QueryParam("userID") String ownerId) {
+		GroupService groupService = (GroupService) appContext
+				.getBean("groupService");
+		
+		List<Group> list = groupService.getGroupListForOwner(ownerId);
+		List<GroupDTO> groupList = new ArrayList<GroupDTO>();
+		
+		for(Group group : list) {
+			GroupDTO dto = new GroupDTO();
+			dto.setGroupID(group.getGroupID());
+			dto.setGroupName(group.getGroupName());
+			groupList.add(dto);
+		}
+		return Response.status(200).entity(groupList).build();
+	}
+	
+	@POST
+	@Path("add-member-to-group")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response addMemberToGroup(GroupMemberDTO member) {
+		boolean isSaved = false;
+		GroupService groupService = (GroupService) appContext
+				.getBean("groupService");
+		UserService userService = (UserService) appContext
+				.getBean("userService");
+		GroupMemberService memberService = (GroupMemberService) appContext
+				.getBean("groupMemberService");
+		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
+
+		response.setCode("addMemberToGroup001");
+		response.setMessage(MathPlayPropertiesFileReaderUtil
+				.getPropertyValue("addMemberToGroup001"));
+
+		User savedUser = userService.loadUser(member.getUserID());
+		Group savedgroup = groupService.getGroupByGroupId(member.getGroupID());
+
+		if (savedUser != null && savedgroup != null) {
+			GroupMember groupMember = new GroupMember();
+			groupMember.setGroup(savedgroup);
+			groupMember.setMember(savedUser);
+			groupMember.setStatus(MemberStatus.WAITING);
+			
+			isSaved = memberService.saveMember(groupMember);
+		}
+		
+		if(!isSaved) {
+			response.setCode("addMemberToGroup002");
+			response.setMessage(MathPlayPropertiesFileReaderUtil
+					.getPropertyValue("addMemberToGroup002"));
 		}
 
 		return Response.status(200).entity(response).build();

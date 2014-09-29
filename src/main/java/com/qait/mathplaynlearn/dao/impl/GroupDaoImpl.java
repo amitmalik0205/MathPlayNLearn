@@ -1,5 +1,8 @@
 package com.qait.mathplaynlearn.dao.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -45,6 +48,40 @@ public class GroupDaoImpl extends GenericDaoImpl<Group, Long> implements GroupDa
 			Query query = session.createQuery(queryString);
 			query.setString("gName", groupName);
 			group = (Group) query.uniqueResult();
+		} catch (Exception e) {
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+		} finally {
+			session.close();
+		}
+		return group;
+	}
+	
+	@Override
+	public List<Group> getGroupListForOwner(String ownerID) {
+		Session session = null;
+		List<Group> list = new ArrayList<Group>();
+		try {
+			session = getSessionFactory().openSession();
+			String queryString = "from Group g where g.groupOwner.userID = :owner";
+			Query query = session.createQuery(queryString);
+			query.setString("owner", ownerID);
+			list = query.list();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+		} finally {
+			session.close();
+		}
+		return list;
+	}
+	
+	@Override
+	public Group getGroupByGroupId(long groupID) {
+		Session session = null;
+		Group group = null;
+		try {
+			session = getSessionFactory().openSession();
+			group = (Group) session.load(Group.class, new Long(groupID));
 		} catch (Exception e) {
 			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
 		} finally {

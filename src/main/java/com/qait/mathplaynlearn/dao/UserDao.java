@@ -17,4 +17,6 @@ public interface UserDao extends GenericDao<User, Long> {
 	public List<Object[]> getMatchingUserID(String str);
 	
 	public User getUserWithSecurityQuestion(String userId);
+	
+	public User loadUser(long id);
 }

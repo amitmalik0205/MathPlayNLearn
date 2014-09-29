@@ -1,5 +1,7 @@
 package com.qait.mathplaynlearn.service;
 
+import java.util.List;
+
 import com.qait.mathplaynlearn.domain.Group;
 
 public interface GroupService {
@@ -7,4 +9,8 @@ public interface GroupService {
 	public boolean saveGroup(Group group);
 	
 	public Group getGroupByGroupName(String groupName);
+	
+	public List<Group> getGroupListForOwner(String ownerID);
+	
+	public Group getGroupByGroupId(long groupID);
 }

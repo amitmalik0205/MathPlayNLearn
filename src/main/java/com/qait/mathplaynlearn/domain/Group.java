@@ -44,4 +44,12 @@ public class Group implements Serializable {
 	public void setGroupOwner(User groupOwner) {
 		this.groupOwner = groupOwner;
 	}
+
+	public Long getGroupID() {
+		return groupID;
+	}
+
+	public void setGroupID(Long groupID) {
+		this.groupID = groupID;
+	}
 }

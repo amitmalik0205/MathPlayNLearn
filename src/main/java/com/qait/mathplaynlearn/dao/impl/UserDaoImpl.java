@@ -103,7 +103,7 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 		Session session =null;
 		try {
 			session = getSessionFactory().openSession();
-			String queryString = "Select u.userID from User u where u.userID like '"+str+"%'";
+			String queryString = "Select u.id,u.userID from User u where u.userID like '"+str+"%'";
 			Query query = session.createQuery(queryString);
 			list = query.list();
 		} catch (Exception e) {
@@ -125,6 +125,22 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 			query.setParameter("userId", userId);
 			user = (User)query.list().get(0);
 		} catch (Exception e) {
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+		} finally {
+			session.close();
+		}
+		return user;
+	}
+	
+	@Override
+	public User loadUser(long id) {
+		Session session = null;
+		User user = null;
+		try {
+			session = getSessionFactory().openSession();
+			user = (User) session.load(User.class, new Long(id));
+		} catch (Exception e) {
+			e.printStackTrace();
 			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
 		} finally {
 			session.close();

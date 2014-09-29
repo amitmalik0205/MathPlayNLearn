@@ -17,4 +17,6 @@ public interface UserService {
 	public User getUserByUserId(String userId);
 	
 	public User getUserWithSecurityQuestion(String userId);
+	
+	public User loadUser(long id);
 }

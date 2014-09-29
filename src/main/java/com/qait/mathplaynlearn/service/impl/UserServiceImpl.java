@@ -61,6 +61,11 @@ public class UserServiceImpl implements UserService {
 		return userDao.getUserWithSecurityQuestion(userId);
 	}
 	
+	@Override
+	public User loadUser(long id) {
+		return userDao.loadUser(id);
+	}
+	
 	public UserDao getUserDao() {
 		return userDao;
 	}
