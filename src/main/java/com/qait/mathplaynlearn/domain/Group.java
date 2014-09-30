@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -32,7 +33,7 @@ public class Group implements Serializable {
 	@JoinColumn(name="group_owner")
 	private User groupOwner;
 	
-	@OneToMany(mappedBy = "group")
+	@OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
 	private Set<GroupMember> groupMembers = new HashSet<GroupMember>();
 
 	public String getGroupName() {

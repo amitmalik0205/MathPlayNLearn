@@ -478,17 +478,17 @@ public class MathPlayNLearnService {
 	@Path("delete-group")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteGroup(GroupMemberDTO memberDTO) {
+	public Response deleteGroup(GroupMemberDTO dto) {
 		GroupService groupService = (GroupService) appContext
 				.getBean("groupService");
-		UserService userService = (UserService) appContext
-				.getBean("userService");
 		GroupMemberService memberService = (GroupMemberService) appContext
 				.getBean("groupMemberService");
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
 		
-		//Check if user is owner
-		
+		Group savedGroup = groupService.getGroupByGroupId(dto.getGroupID());
+		if(savedGroup != null) {
+			groupService.delete(savedGroup);
+		}
 		
 		return Response.status(200).entity("").build();
 	}

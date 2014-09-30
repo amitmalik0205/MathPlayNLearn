@@ -13,4 +13,6 @@ public interface GroupService {
 	public List<Group> getGroupListForOwner(String ownerID);
 	
 	public Group getGroupByGroupId(long groupID);
+	
+	public boolean delete(Group group);
 }

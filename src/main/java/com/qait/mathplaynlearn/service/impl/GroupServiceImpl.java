@@ -34,4 +34,9 @@ public class GroupServiceImpl implements GroupService {
 	public Group getGroupByGroupId(long groupID) {
 		return groupDao.getGroupByGroupId(groupID);
 	}
+	
+	@Override
+	public boolean delete(Group group) {
+		return groupDao.delete(group);
+	}
 }

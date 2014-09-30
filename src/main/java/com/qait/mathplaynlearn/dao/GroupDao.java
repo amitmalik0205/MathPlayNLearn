@@ -13,4 +13,6 @@ public interface GroupDao extends GenericDao<Group, Long> {
 	public List<Group> getGroupListForOwner(String ownerID);
 	
 	public Group getGroupByGroupId(long groupID);
+	
+	public boolean delete(Group group);
 }

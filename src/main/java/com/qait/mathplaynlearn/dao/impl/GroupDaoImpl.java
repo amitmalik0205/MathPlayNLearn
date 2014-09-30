@@ -33,6 +33,7 @@ public class GroupDaoImpl extends GenericDaoImpl<Group, Long> implements GroupDa
 			groupSaved = false;
 			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
 		} finally {
+			session.flush();
 			session.close();
 		}
 		return groupSaved;
@@ -88,5 +89,26 @@ public class GroupDaoImpl extends GenericDaoImpl<Group, Long> implements GroupDa
 			session.close();
 		}
 		return group;
+	}
+	
+	@Override
+	public boolean delete(Group group) {
+		boolean groupDeleted = true;
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			session = getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+			session.delete(group);
+			transaction.commit();
+		} catch (Exception e) {
+			transaction.rollback();
+			groupDeleted = false;
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+		} finally {
+			session.flush();
+			session.close();
+		}
+		return groupDeleted;
 	}
 }
