@@ -81,7 +81,7 @@ public class GroupDaoImpl extends GenericDaoImpl<Group, Long> implements GroupDa
 		Group group = null;
 		try {
 			session = getSessionFactory().openSession();
-			group = (Group) session.load(Group.class, new Long(groupID));
+			group = (Group) session.get(Group.class, new Long(groupID));
 		} catch (Exception e) {
 			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
 		} finally {

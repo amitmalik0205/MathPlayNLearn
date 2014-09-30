@@ -1,14 +1,15 @@
-package com.qait.mathplaynlearn.dao;
+package com.qait.mathplaynlearn.service;
 
 import java.util.List;
 
 import com.qait.mathplaynlearn.domain.GroupMember;
+import com.qait.mathplaynlearn.dto.GroupMemberInfoDTO;
 
-public interface GroupMemberDao extends GenericDao<GroupMember, Long> {
+public interface GroupMemberService {
 
 	public boolean saveMember(GroupMember member);
 	
-	public List<Object[]> getMembersInfoByGroup(long groupID);
+	public List<GroupMemberInfoDTO> getMembersInfoByGroup(long groupID);
 	
 	public GroupMember getGroupMemberByID(long groupID, long memberID);
 	

@@ -133,12 +133,12 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 	}
 	
 	@Override
-	public User loadUser(long id) {
+	public User getUser(long id) {
 		Session session = null;
 		User user = null;
 		try {
 			session = getSessionFactory().openSession();
-			user = (User) session.load(User.class, new Long(id));
+			user = (User) session.get(User.class, new Long(id));
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));

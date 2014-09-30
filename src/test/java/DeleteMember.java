@@ -6,11 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qait.mathplaynlearn.dto.GroupMemberDTO;
 
 
-public class AddMember {
+public class DeleteMember {
 
 	public static void main(String[] args) throws JAXBException, IOException {
 		
-		String url = "http://172.16.9.35:8081/MathPlayNLearn/rest/math-play-service/add-member-to-group";
+		String url = "http://172.16.9.35:8081/MathPlayNLearn/rest/math-play-service/delete-member-from-group";
 		
 		GroupMemberDTO memberDTO = new GroupMemberDTO();
 		memberDTO.setGroupID(10);
@@ -23,4 +23,6 @@ public class AddMember {
 		TestUtil.sendRequest(url, content, "POST");
 		
 	}
+
+
 }

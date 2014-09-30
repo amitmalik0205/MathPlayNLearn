@@ -1,6 +1,8 @@
 package com.qait.mathplaynlearn.domain;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -28,6 +31,9 @@ public class Group implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="group_owner")
 	private User groupOwner;
+	
+	@OneToMany(mappedBy = "group")
+	private Set<GroupMember> groupMembers = new HashSet<GroupMember>();
 
 	public String getGroupName() {
 		return groupName;
@@ -51,5 +57,13 @@ public class Group implements Serializable {
 
 	public void setGroupID(Long groupID) {
 		this.groupID = groupID;
+	}
+
+	public Set<GroupMember> getGroupMembers() {
+		return groupMembers;
+	}
+
+	public void setGroupMembers(Set<GroupMember> groupMembers) {
+		this.groupMembers = groupMembers;
 	}
 }

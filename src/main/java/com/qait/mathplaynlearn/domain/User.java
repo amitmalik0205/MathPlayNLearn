@@ -43,6 +43,9 @@ public class User implements Serializable {
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="question_id")
 	private SecurityQuestion securityQuestion;
+	
+	@OneToMany(mappedBy = "member")
+	private Set<GroupMember> groupMembers = new HashSet<GroupMember>();
 
 	public Long getId() {
 		return id;
@@ -98,5 +101,13 @@ public class User implements Serializable {
 
 	public void setSecurityQuestion(SecurityQuestion securityQuestion) {
 		this.securityQuestion = securityQuestion;
+	}
+
+	public Set<GroupMember> getGroupMembers() {
+		return groupMembers;
+	}
+
+	public void setGroupMembers(Set<GroupMember> groupMembers) {
+		this.groupMembers = groupMembers;
 	}
 }

@@ -18,5 +18,5 @@ public interface UserDao extends GenericDao<User, Long> {
 	
 	public User getUserWithSecurityQuestion(String userId);
 	
-	public User loadUser(long id);
+	public User getUser(long id);
 }

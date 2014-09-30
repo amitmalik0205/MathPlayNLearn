@@ -7,6 +7,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -28,6 +29,7 @@ import com.qait.mathplaynlearn.enums.MemberStatus;
 import com.qait.mathplaynlearn.rest.dto.GameDetailsDTO;
 import com.qait.mathplaynlearn.service.GameDetailsService;
 import com.qait.mathplaynlearn.service.GameService;
+import com.qait.mathplaynlearn.service.GroupMemberService;
 import com.qait.mathplaynlearn.service.GroupService;
 import com.qait.mathplaynlearn.service.SecurityQuestionService;
 import com.qait.mathplaynlearn.service.UserService;
@@ -48,7 +50,7 @@ public class MathPlayNLearnService {
 	public String text() {
 		return "Its working";
 	}
-	
+
 	@GET
 	@Path("xml-test")
 	@Produces(MediaType.APPLICATION_XML)
@@ -57,16 +59,16 @@ public class MathPlayNLearnService {
 		customer.setId(42);
 		customer.setName("Amit Malik");
 		customer.setAge(28);
-		
+
 		Address address = new Address();
 		address.setCity("Delhi");
 		address.setCountry("India");
-		
+
 		customer.setAddress(address);
-		
+
 		return customer;
 	}
-	
+
 	@GET
 	@Path("get-security-questions")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -111,6 +113,7 @@ public class MathPlayNLearnService {
 
 	/**
 	 * Service will return the List of UseID's matching with @param searchStr
+	 * 
 	 * @param searchStr
 	 *            - Search String
 	 * @return - List of UserID's
@@ -127,7 +130,6 @@ public class MathPlayNLearnService {
 		return Response.status(200).entity(list).build();
 	}
 
-	
 	@POST
 	@Path("recover-password")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -135,10 +137,11 @@ public class MathPlayNLearnService {
 	public Response recoverPassword(User user) {
 		UserService userService = (UserService) appContext
 				.getBean("userService");
-		
+
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
 
-		User savedUser = userService.getUserWithSecurityQuestion(user.getUserID());
+		User savedUser = userService.getUserWithSecurityQuestion(user
+				.getUserID());
 		if (savedUser == null) {
 
 			response.setCode("recoverPassword002");
@@ -146,13 +149,17 @@ public class MathPlayNLearnService {
 					.getPropertyValue("recoverPassword002"));
 
 		} else {
-			
+
 			SecurityQuestion savedQuestion = savedUser.getSecurityQuestion();
 			SecurityQuestion question = user.getSecurityQuestion();
 
 			if (question.getQuestionId().equals(savedQuestion.getQuestionId())) {
 
-				if (savedUser.getAnswer().replaceAll("\\s","").equalsIgnoreCase(user.getAnswer().replaceAll("\\s",""))) {
+				if (savedUser
+						.getAnswer()
+						.replaceAll("\\s", "")
+						.equalsIgnoreCase(
+								user.getAnswer().replaceAll("\\s", ""))) {
 
 					response.setCode("recoverPassword001");
 					response.setMessage(MathPlayPropertiesFileReaderUtil
@@ -176,56 +183,53 @@ public class MathPlayNLearnService {
 
 		return Response.status(200).entity(response).build();
 	}
-	
+
 	/**
 	 * Service will send email to the registered email ID.
+	 * 
 	 * @param userID
 	 * @return
-	 *//*
-	@POST
-	@Path("recover-password")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response recoverPassword(User user) {
-		UserService userService = (UserService) appContext
-				.getBean("userService");
-		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
+	 */
+	/*
+	 * @POST
+	 * 
+	 * @Path("recover-password")
+	 * 
+	 * @Consumes(MediaType.APPLICATION_JSON)
+	 * 
+	 * @Produces(MediaType.APPLICATION_JSON) public Response
+	 * recoverPassword(User user) { UserService userService = (UserService)
+	 * appContext .getBean("userService"); MathPlayNLearnServiceResponse
+	 * response = new MathPlayNLearnServiceResponse();
+	 * 
+	 * User savedUser = userService.getUserByUserId(user.getUserID()); if
+	 * (savedUser == null) {
+	 * 
+	 * response.setCode("recoverPassword002");
+	 * response.setMessage(MathPlayPropertiesFileReaderUtil
+	 * .getPropertyValue("recoverPassword002"));
+	 * 
+	 * } else {
+	 * 
+	 * SendPasswordDTO templateModel = new SendPasswordDTO();
+	 * templateModel.setUserID(savedUser.getUserID());
+	 * templateModel.setPassword(savedUser.getPassword());
+	 * 
+	 * boolean isEmailSent = EmailUtil .sendEmail(
+	 * MathPlayPropertiesFileReaderUtil
+	 * .getVelocityTemplateProperties("send.password.email.subject"),
+	 * savedUser.getEmail(), EmailType.SEND_PASSWORD, templateModel);
+	 * 
+	 * if (isEmailSent) { response.setCode("recoverPassword001");
+	 * response.setMessage(MathPlayPropertiesFileReaderUtil
+	 * .getPropertyValue("recoverPassword001")); } else {
+	 * response.setCode("recoverPassword003");
+	 * response.setMessage(MathPlayPropertiesFileReaderUtil
+	 * .getPropertyValue("recoverPassword003")); } }
+	 * 
+	 * return Response.status(200).entity(response).build(); }
+	 */
 
-		User savedUser = userService.getUserByUserId(user.getUserID());
-		if (savedUser == null) {
-
-			response.setCode("recoverPassword002");
-			response.setMessage(MathPlayPropertiesFileReaderUtil
-					.getPropertyValue("recoverPassword002"));
-
-		} else {
-
-			SendPasswordDTO templateModel = new SendPasswordDTO();
-			templateModel.setUserID(savedUser.getUserID());
-			templateModel.setPassword(savedUser.getPassword());
-
-			boolean isEmailSent = EmailUtil
-					.sendEmail(
-							MathPlayPropertiesFileReaderUtil
-									.getVelocityTemplateProperties("send.password.email.subject"),
-							savedUser.getEmail(), EmailType.SEND_PASSWORD,
-							templateModel);
-
-			if (isEmailSent) {
-				response.setCode("recoverPassword001");
-				response.setMessage(MathPlayPropertiesFileReaderUtil
-						.getPropertyValue("recoverPassword001"));
-			} else {
-				response.setCode("recoverPassword003");
-				response.setMessage(MathPlayPropertiesFileReaderUtil
-						.getPropertyValue("recoverPassword003"));
-			}
-		}
-
-		return Response.status(200).entity(response).build();
-	}*/
-	
-	
 	@POST
 	@Path("save-game-score")
 	@Consumes(value = MediaType.APPLICATION_JSON)
@@ -308,12 +312,14 @@ public class MathPlayNLearnService {
 		}
 		return Response.status(200).entity(response).build();
 	}
-	
-	
+
 	/**
 	 * Creates new group
-	 * @param userID - Owner of the group
-	 * @param groupName - Name of the group
+	 * 
+	 * @param userID
+	 *            - Owner of the group
+	 * @param groupName
+	 *            - Name of the group
 	 * @return
 	 */
 	@GET
@@ -327,6 +333,8 @@ public class MathPlayNLearnService {
 				.getBean("userService");
 		GroupService groupService = (GroupService) appContext
 				.getBean("groupService");
+		GroupMemberService memberService = (GroupMemberService) appContext
+				.getBean("groupMemberService");
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
 
 		User user = userService.getUserByUserId(userID);
@@ -353,6 +361,11 @@ public class MathPlayNLearnService {
 				boolean isGroupSaved = groupService.saveGroup(newGroup);
 
 				if (isGroupSaved) {
+					
+					//Add owner as group member
+					Group createdGroup = groupService.getGroupByGroupName(groupName);
+					GroupMember groupMember = new GroupMember(user, createdGroup,MemberStatus.ACCEPTED);
+					memberService.saveMember(groupMember);
 
 					response.setCode("createGroup001");
 					response.setMessage(MathPlayPropertiesFileReaderUtil
@@ -369,7 +382,7 @@ public class MathPlayNLearnService {
 
 		return Response.status(200).entity(response).build();
 	}
-	
+
 	@GET
 	@Path("group-list-for-owner")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -377,11 +390,11 @@ public class MathPlayNLearnService {
 	public Response getGroupList(@QueryParam("userID") String ownerId) {
 		GroupService groupService = (GroupService) appContext
 				.getBean("groupService");
-		
+
 		List<Group> list = groupService.getGroupListForOwner(ownerId);
 		List<GroupDTO> groupList = new ArrayList<GroupDTO>();
-		
-		for(Group group : list) {
+
+		for (Group group : list) {
 			GroupDTO dto = new GroupDTO();
 			dto.setGroupID(group.getGroupID());
 			dto.setGroupName(group.getGroupName());
@@ -389,7 +402,7 @@ public class MathPlayNLearnService {
 		}
 		return Response.status(200).entity(groupList).build();
 	}
-	
+
 	@POST
 	@Path("add-member-to-group")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -408,24 +421,75 @@ public class MathPlayNLearnService {
 		response.setMessage(MathPlayPropertiesFileReaderUtil
 				.getPropertyValue("addMemberToGroup001"));
 
-		User savedUser = userService.loadUser(member.getUserID());
+		User savedUser = userService.getUser(member.getUserKey());
 		Group savedgroup = groupService.getGroupByGroupId(member.getGroupID());
 
 		if (savedUser != null && savedgroup != null) {
-			GroupMember groupMember = new GroupMember();
-			groupMember.setGroup(savedgroup);
-			groupMember.setMember(savedUser);
-			groupMember.setStatus(MemberStatus.WAITING);
-			
+			GroupMember groupMember = new GroupMember(savedUser, savedgroup,
+					MemberStatus.WAITING);
+
 			isSaved = memberService.saveMember(groupMember);
 		}
-		
-		if(!isSaved) {
+
+		if (!isSaved) {
 			response.setCode("addMemberToGroup002");
 			response.setMessage(MathPlayPropertiesFileReaderUtil
 					.getPropertyValue("addMemberToGroup002"));
 		}
 
 		return Response.status(200).entity(response).build();
+	}
+	
+	@GET
+	@Path("get-group-members/{groupID}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response listGroupMembers(@PathParam("groupID") long groupID) {
+		GroupMemberService memberService = (GroupMemberService) appContext
+				.getBean("groupMemberService");
+		return Response.status(200)
+				.entity(memberService.getMembersInfoByGroup(groupID)).build();
+	}
+	
+	@POST
+	@Path("delete-member-from-group")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteMember(GroupMemberDTO dto) {
+		GroupMemberService memberService = (GroupMemberService) appContext
+				.getBean("groupMemberService");
+		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
+		
+		boolean isDeleted = memberService.deleteGroupMember(dto.getGroupID(), dto.getUserKey());
+		
+		if(isDeleted) {
+			response.setCode("deleteMemberFromGroup001");
+			response.setMessage(MathPlayPropertiesFileReaderUtil
+					.getPropertyValue("deleteMemberFromGroup001"));
+		} else {
+			response.setCode("deleteMemberFromGroup002");
+			response.setMessage(MathPlayPropertiesFileReaderUtil
+					.getPropertyValue("deleteMemberFromGroup002"));
+		}
+		
+		return Response.status(200).entity(response).build();
+	}
+	
+	@POST
+	@Path("delete-group")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteGroup(GroupMemberDTO memberDTO) {
+		GroupService groupService = (GroupService) appContext
+				.getBean("groupService");
+		UserService userService = (UserService) appContext
+				.getBean("userService");
+		GroupMemberService memberService = (GroupMemberService) appContext
+				.getBean("groupMemberService");
+		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
+		
+		//Check if user is owner
+		
+		
+		return Response.status(200).entity("").build();
 	}
 }

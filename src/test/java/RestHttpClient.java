@@ -9,7 +9,6 @@ import javax.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qait.mathplaynlearn.domain.Game;
-import com.qait.mathplaynlearn.domain.GameDetails;
 import com.qait.mathplaynlearn.domain.User;
 import com.qait.mathplaynlearn.rest.dto.GameDetailsDTO;
 
@@ -19,7 +18,7 @@ public class RestHttpClient {
 
 	public static void main(String[] args) throws JAXBException, IOException {
 		
-		String url = "http://172.16.9.35:8081/MathPlayNLearn/rest/math-play-service/save-game-score";
+		String url = "http://172.16.9.35:8081/MathPlayNLearn/rest/math-play-service/add-member-to-group";
 		
 		User user = new User();
 		user.setUserID("amit1");
