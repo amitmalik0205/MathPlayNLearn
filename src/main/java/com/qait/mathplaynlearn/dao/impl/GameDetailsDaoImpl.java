@@ -70,11 +70,31 @@ public class GameDetailsDaoImpl extends GenericDaoImpl<GameDetails, Long> implem
 					+ "join game_details gd on gd.user_id = gm.member_id join user u on u.id = gd.user_id "
 					+ "where gd.game_id = :gameid and gm.group_id = :gid";
 			Query query = session.createSQLQuery(queryStr);*/
-			String queryStr = "Select u.userID, gd.userScore, gm.status from GroupMember gm join gm.group g "+
+			String queryStr = "Select u.userID, gd.level, gd.userScore, gm.status from GroupMember gm join gm.group g "+
 							"join gm.member u join u.gameDetails gd where g.groupID = :gid and gd.game.gameId = :gameid";
 			Query query = session.createQuery(queryStr);
 			query.setParameter("gid", groupID);
 			query.setParameter("gameid", gameID);
+			list = query.list();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+		} finally {
+			session.close();
+		}
+		return list;
+	}
+	
+	@Override
+	public List<Object[]> getTotalScoreForUser(long groupID) {
+		List<Object[]> list = new ArrayList<Object[]>();
+		Session session = null;
+		try {
+			session = getSessionFactory().openSession();
+			String queryStr = "SELECT u.userID, sum(gd.userScore) FROM GroupMember gm join gm.group g "+
+							"JOIN gm.member u JOIN u.gameDetails gd WHERE g.groupID = :gid GROUP BY u.userID ORDER BY sum(gd.userScore) DESC";
+			Query query = session.createQuery(queryStr);
+			query.setParameter("gid", groupID);
 			list = query.list();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -562,4 +562,19 @@ public class MathPlayNLearnService {
 		}
 		return Response.status(200).entity(list).build();
 	}
+	
+	@GET
+	@Path("get-total-user-score/{groupID}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getTotalScoreForUser(@PathParam("groupID") long groupID) {
+		GameDetailsService detailsService = (GameDetailsService) appContext
+				.getBean("gameDetailsService");
+		
+		List<Object[]> list = new ArrayList<Object[]>();
+		
+		list = detailsService.getTotalScoreForUser(groupID);
+		
+		return Response.status(200).entity(list).build();
+	}
 }

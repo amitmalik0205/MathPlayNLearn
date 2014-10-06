@@ -29,6 +29,11 @@ public class GameDetailsServiceImpl implements GameDetailsService {
 	public List<Object[]> getScoreForGroup(long groupID, long gameID) {
 		return gameDetailsDao.getScoreForGroup(groupID, gameID);
 	}
+	
+	@Override
+	public List<Object[]> getTotalScoreForUser(long groupID) {
+		return gameDetailsDao.getTotalScoreForUser(groupID);
+	}
 
 	public GameDetailsDao getGameDetailsDao() {
 		return gameDetailsDao;

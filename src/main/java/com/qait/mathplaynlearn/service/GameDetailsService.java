@@ -11,4 +11,6 @@ public interface GameDetailsService {
 	public GameDetails getGameDetailsByUserAndGame(Long userID, Long gameId);
 	
 	public List<Object[]> getScoreForGroup(long groupID, long gameID);
+	
+	public List<Object[]> getTotalScoreForUser(long groupID);
 }
