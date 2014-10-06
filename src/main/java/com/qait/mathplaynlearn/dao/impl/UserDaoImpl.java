@@ -39,6 +39,15 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 		return userSaved;
 	}
 	
+	/*@Override
+	public boolean saveUser(User user) {
+		boolean userSaved = true;
+		Session session = getSessionFactory().openSession();
+		session.saveOrUpdate(user);
+		int i = 1/0;
+		return userSaved;
+	}*/
+	
 	@Override
 	public User getUserByEmail(String email) {
 		Session session = null;
@@ -103,7 +112,7 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 		Session session =null;
 		try {
 			session = getSessionFactory().openSession();
-			String queryString = "Select u.id,u.userID from User u where u.userID like '"+str+"%'";
+			String queryString = "Select u.id,u.userID,'ADD TO GROUP' from User u where u.userID like '"+str+"%'";
 			Query query = session.createQuery(queryString);
 			list = query.list();
 		} catch (Exception e) {
@@ -146,5 +155,23 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 			session.close();
 		}
 		return user;
+	}
+	
+	@Override
+	public List<Object[]> getMatchingUserIDForGroup(String str, long groupID) {
+		List<Object[]> list = new ArrayList<Object[]>();
+		Session session =null;
+		try {
+			session = getSessionFactory().openSession();
+			String queryString = "Select u.id,u.userID,gm.status from GroupMember gm join gm.member u where gm.group.groupID=:gid and u.userID like '"+str+"%'";
+			Query query = session.createQuery(queryString);
+			query.setParameter("gid", groupID);
+			list = query.list();
+		} catch (Exception e) {
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+		} finally {
+			session.close();
+		}
+		return list;
 	}
 }

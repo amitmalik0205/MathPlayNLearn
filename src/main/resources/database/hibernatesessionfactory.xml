@@ -4,31 +4,25 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-	<!-- Hibernate session factory -->
+	<!-- Hibernate SessionFactory -->
+	
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 
-		<property name="dataSource">
-			<ref bean="dataSource" />
-		</property>
+		<property name="dataSource" ref="dataSource" />
+		
+		<property name="configLocation" value="classpath:/database/hibernate.cfg.xml"/>
+		
+		<property name="configurationClass" value="org.hibernate.cfg.AnnotationConfiguration"/>
 
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
 				<prop key="hibernate.show_sql">true</prop>
 				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate3.SpringSessionContext</prop>
 			</props>
 		</property>
-
-		<property name="annotatedClasses">
-			<list>
-				<value>com.qait.mathplaynlearn.domain.User</value>
-				<value>com.qait.mathplaynlearn.domain.Group</value>
-				<value>com.qait.mathplaynlearn.domain.SecurityQuestion</value>
-				<value>com.qait.mathplaynlearn.domain.Game</value>
-				<value>com.qait.mathplaynlearn.domain.GameDetails</value>
-				<value>com.qait.mathplaynlearn.domain.GroupMember</value>
-			</list>
-		</property>
+		
 	</bean>
 </beans>

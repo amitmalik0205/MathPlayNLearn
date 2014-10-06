@@ -46,6 +46,9 @@ public class User implements Serializable {
 	
 	@OneToMany(mappedBy = "member")
 	private Set<GroupMember> groupMembers = new HashSet<GroupMember>();
+	
+	@OneToMany(mappedBy = "user")
+	private Set<GameDetails> gameDetails = new HashSet<GameDetails>();
 
 	public Long getId() {
 		return id;
@@ -109,5 +112,13 @@ public class User implements Serializable {
 
 	public void setGroupMembers(Set<GroupMember> groupMembers) {
 		this.groupMembers = groupMembers;
+	}
+
+	public Set<GameDetails> getGameDetails() {
+		return gameDetails;
+	}
+
+	public void setGameDetails(Set<GameDetails> gameDetails) {
+		this.gameDetails = gameDetails;
 	}
 }

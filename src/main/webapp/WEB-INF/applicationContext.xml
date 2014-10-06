@@ -22,6 +22,7 @@
 
 	<import resource="classpath:/database/datasource.xml" />
 	<import resource="classpath:/database/hibernatesessionfactory.xml" />
+	<import resource="classpath:/database/applicationContext-hibernate.xml" />
 	
 	<context:component-scan base-package="com.qait.mathplaynlearn" />
 	

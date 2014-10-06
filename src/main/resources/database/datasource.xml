@@ -12,4 +12,19 @@
 		<property name="password" value="${jdbc.password}" />
 	</bean>
 
+	<!-- Connection pool configurations -->
+<!-- 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driverClassName}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="maxPoolSize" value="50"/>
+        <property name="checkoutTimeout" value="500"/> 
+        <property name="minPoolSize" value="1"/>
+        <property name="acquireIncrement" value="1"/>
+        <property name="numHelperThreads" value="10"/>
+        <property name="maxIdleTime" value="900"/>
+		<property name="unreturnedConnectionTimeout" value="30"/>
+        <property name="debugUnreturnedConnectionStackTraces" value="true"/>
+    </bean> -->
 </beans>

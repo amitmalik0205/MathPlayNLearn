@@ -60,6 +60,12 @@
 		   <version>${spring.version}</version>
   		</dependency>
 
+	    <dependency>
+	      <groupId>org.springframework</groupId>
+	      <artifactId>spring-tx</artifactId>
+	      <version>${spring.version}</version>
+	    </dependency>
+	    
 		<!-- Spring orm for database(hibernate support) -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -200,7 +206,25 @@
  			 <groupId>taglibs</groupId> 
   			 <artifactId>standard</artifactId> 
   			 <version>1.1.2</version>
-  		</dependency>	 
+  		</dependency>	
+  		
+  		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.6</version>
+		</dependency>
+        
+      <dependency>
+		<groupId>commons-collections</groupId>
+		<artifactId>commons-collections</artifactId>
+		<version>3.2.1</version>
+      </dependency>    
+      
+      <dependency>
+		<groupId>commons-lang</groupId>
+		<artifactId>commons-lang</artifactId>
+		<version>2.4</version>
+	</dependency> 
 
 		<!-- mysql -->
 		<dependency>
@@ -223,24 +247,7 @@
 			<version>2.4</version>
 		</dependency>
 		
-<!-- 		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-server</artifactId>
-			<version>1.8</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-json</artifactId>
-			<version>1.8</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-client</artifactId>
-			<version>1.8</version>
-		</dependency>  -->   
-		
+		<!-- Jersey Jars -->
 		<dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
 			<artifactId>jersey-container-servlet-core</artifactId>
@@ -252,26 +259,15 @@
 		    <artifactId>jersey-media-json-jackson</artifactId>
 		    <version>2.12</version>
 		</dependency>
-		
+	
+	<!-- Connection pool jar -->
 		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.6</version>
-		</dependency>
-        
-      <dependency>
-		<groupId>commons-collections</groupId>
-		<artifactId>commons-collections</artifactId>
-		<version>3.2.1</version>
-      </dependency>    
-      
-      <dependency>
-		<groupId>commons-lang</groupId>
-		<artifactId>commons-lang</artifactId>
-		<version>2.4</version>
-	</dependency>
-		                        					         
-	</dependencies>
+	      <groupId>c3p0</groupId>
+	      <artifactId>c3p0</artifactId>
+	      <version>0.9.1.2</version>
+	    </dependency>
+		                  					         
+    </dependencies>
 
 
 	<build>

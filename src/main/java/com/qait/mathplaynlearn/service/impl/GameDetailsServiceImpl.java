@@ -1,5 +1,7 @@
 package com.qait.mathplaynlearn.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,11 @@ public class GameDetailsServiceImpl implements GameDetailsService {
 	@Override
 	public GameDetails getGameDetailsByUserAndGame(Long userID, Long gameId) {
 		return gameDetailsDao.getGameDetailsByUserAndGame(userID, gameId);
+	}
+	
+	@Override
+	public List<Object[]> getScoreForGroup(long groupID, long gameID) {
+		return gameDetailsDao.getScoreForGroup(groupID, gameID);
 	}
 
 	public GameDetailsDao getGameDetailsDao() {

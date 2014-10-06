@@ -2,6 +2,7 @@ package com.qait.mathplaynlearn.rest.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -16,6 +17,7 @@ import javax.ws.rs.core.Response;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.qait.mathplaynlearn.domain.Game;
 import com.qait.mathplaynlearn.domain.GameDetails;
@@ -25,6 +27,7 @@ import com.qait.mathplaynlearn.domain.SecurityQuestion;
 import com.qait.mathplaynlearn.domain.User;
 import com.qait.mathplaynlearn.dto.GroupDTO;
 import com.qait.mathplaynlearn.dto.GroupMemberDTO;
+import com.qait.mathplaynlearn.dto.GroupScoreDTO;
 import com.qait.mathplaynlearn.enums.MemberStatus;
 import com.qait.mathplaynlearn.rest.dto.GameDetailsDTO;
 import com.qait.mathplaynlearn.service.GameDetailsService;
@@ -122,12 +125,27 @@ public class MathPlayNLearnService {
 	@Path("search-user")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response searchUser(@QueryParam("userIDString") String searchStr) {
+	public Response searchUser(@QueryParam("userIDString") String searchStr, @QueryParam("groupID") long groupID) {
 		UserService userService = (UserService) appContext
 				.getBean("userService");
 
-		List<Object[]> list = userService.getMatchingUserID(searchStr);
-		return Response.status(200).entity(list).build();
+		List<Object[]> groupList = userService.getMatchingUserIDForGroup(
+				searchStr, groupID);
+		List<Object[]> fullList = new CopyOnWriteArrayList<Object[]>(
+				userService.getMatchingUserID(searchStr));
+
+		for(Object[] outer : groupList) {
+			for(Object[] inner : fullList) {
+				if(((Long)outer[0]).equals((Long)inner[0])) {
+					fullList.remove(inner);
+					break;
+				}
+			}
+		}
+		
+		groupList.addAll(fullList);
+		
+		return Response.status(200).entity(groupList).build();
 	}
 
 	@POST
@@ -326,10 +344,16 @@ public class MathPlayNLearnService {
 	@Path("create-group")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@Transactional
 	public Response createGroup(@QueryParam("userID") String userID,
 			@QueryParam("groupName") String groupName) {
+		
+		MathPlayNLearnServiceAdapter adapter = (MathPlayNLearnServiceAdapter) appContext
+				.getBean("mathPlayNLearnServiceAdapter");
+		
+		return adapter.createGroup(userID, groupName);
 
-		UserService userService = (UserService) appContext
+/*		UserService userService = (UserService) appContext
 				.getBean("userService");
 		GroupService groupService = (GroupService) appContext
 				.getBean("groupService");
@@ -380,7 +404,7 @@ public class MathPlayNLearnService {
 			}
 		}
 
-		return Response.status(200).entity(response).build();
+		return Response.status(200).entity(response).build();*/
 	}
 
 	@GET
@@ -481,15 +505,61 @@ public class MathPlayNLearnService {
 	public Response deleteGroup(GroupMemberDTO dto) {
 		GroupService groupService = (GroupService) appContext
 				.getBean("groupService");
-		GroupMemberService memberService = (GroupMemberService) appContext
-				.getBean("groupMemberService");
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
 		
 		Group savedGroup = groupService.getGroupByGroupId(dto.getGroupID());
+		
 		if(savedGroup != null) {
-			groupService.delete(savedGroup);
+			boolean isDeleted = groupService.delete(savedGroup);
+			
+			if(isDeleted) {
+				response.setCode("deleteGroup001");
+				response.setMessage(MathPlayPropertiesFileReaderUtil
+						.getPropertyValue("deleteGroup001"));
+				
+			} else {
+				response.setCode("deleteGroup003");
+				response.setMessage(MathPlayPropertiesFileReaderUtil
+						.getPropertyValue("deleteGroup003"));
+			}
+			
+		} else {
+			response.setCode("deleteGroup002");
+			response.setMessage(MathPlayPropertiesFileReaderUtil
+					.getPropertyValue("deleteGroup002"));
 		}
 		
-		return Response.status(200).entity("").build();
+		return Response.status(200).entity(response).build();
+	}
+	
+	@POST
+	@Path("get-group-score")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getGroupScore(GroupScoreDTO dto) {
+		GameService gameService = (GameService) appContext
+				.getBean("gameService");
+		GameDetailsService detailsService = (GameDetailsService) appContext
+				.getBean("gameDetailsService");
+
+		Game savedGame = gameService.getGameByNameAndClass(dto.getGameName(),
+				dto.getGameClass());
+
+		List<Object[]> list = new ArrayList<Object[]>();
+
+		if (savedGame != null) {
+			list = detailsService.getScoreForGroup(dto.getGroupID(),
+					savedGame.getGameId());
+		} else {
+
+			MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
+
+			response.setCode("getGroupScore001");
+			response.setMessage(MathPlayPropertiesFileReaderUtil
+					.getPropertyValue("getGroupScore001"));
+
+			return Response.status(200).entity(response).build();
+		}
+		return Response.status(200).entity(list).build();
 	}
 }

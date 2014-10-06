@@ -15,12 +15,14 @@ import com.qait.mathplaynlearn.service.UserService;
 import com.qait.mathplaynlearn.util.MathPlayPropertiesFileReaderUtil;
 
 @Service("userService")
+
 public class UserServiceImpl implements UserService {
 	
 	private static final Logger logger = Logger.getLogger(UserServiceImpl.class);
 	
 	@Autowired
 	private UserDao userDao;
+	
 	
 	public Response saveUser(User user) {
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
@@ -64,6 +66,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User getUser(long id) {
 		return userDao.getUser(id);
+	}
+	
+	@Override
+	public List<Object[]> getMatchingUserIDForGroup(String str, long groupID) {
+		return userDao.getMatchingUserIDForGroup(str, groupID);
 	}
 	
 	public UserDao getUserDao() {

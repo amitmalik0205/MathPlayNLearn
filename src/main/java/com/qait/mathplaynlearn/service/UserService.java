@@ -19,4 +19,6 @@ public interface UserService {
 	public User getUserWithSecurityQuestion(String userId);
 	
 	public User getUser(long id);
+	
+	public List<Object[]> getMatchingUserIDForGroup(String str, long groupID);
 }

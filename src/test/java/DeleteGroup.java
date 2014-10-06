@@ -13,7 +13,7 @@ public class DeleteGroup {
 		String url = "http://172.16.9.35:8081/MathPlayNLearn/rest/math-play-service/delete-group";
 		
 		GroupMemberDTO memberDTO = new GroupMemberDTO();
-		memberDTO.setGroupID(12);
+		memberDTO.setGroupID(11);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(memberDTO);
