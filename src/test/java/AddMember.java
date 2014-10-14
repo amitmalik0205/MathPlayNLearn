@@ -13,8 +13,8 @@ public class AddMember {
 		String url = "http://172.16.9.35:8081/MathPlayNLearn/rest/math-play-service/add-member-to-group";
 		
 		GroupMemberDTO memberDTO = new GroupMemberDTO();
-		memberDTO.setGroupID(12);
-		memberDTO.setUserKey(10);
+		memberDTO.setGroupID(29);
+		memberDTO.setUserKey(9);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		String content = mapper.writeValueAsString(memberDTO);

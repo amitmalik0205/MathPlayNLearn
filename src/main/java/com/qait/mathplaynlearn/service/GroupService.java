@@ -3,6 +3,7 @@ package com.qait.mathplaynlearn.service;
 import java.util.List;
 
 import com.qait.mathplaynlearn.domain.Group;
+import com.qait.mathplaynlearn.domain.User;
 
 public interface GroupService {
 
@@ -15,4 +16,6 @@ public interface GroupService {
 	public Group getGroupByGroupId(long groupID);
 	
 	public boolean delete(Group group);
+	
+	public User getGroupOwner(Long groupID);
 }

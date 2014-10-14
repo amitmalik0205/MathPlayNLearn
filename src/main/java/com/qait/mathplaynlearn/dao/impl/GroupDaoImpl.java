@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.qait.mathplaynlearn.dao.GroupDao;
 import com.qait.mathplaynlearn.domain.Group;
+import com.qait.mathplaynlearn.domain.User;
 import com.qait.mathplaynlearn.util.MathPlayNLearnUtil;
 
 @Repository("groupDao")
@@ -38,6 +39,18 @@ public class GroupDaoImpl extends GenericDaoImpl<Group, Long> implements GroupDa
 		}
 		return groupSaved;
 	}
+	
+/*	@Override
+	public boolean saveGroup(Group group) {
+		boolean groupSaved = true;
+		Session session = null;
+		session = getSessionFactory().openSession();
+		session.save(group);
+		int i = 1/0;
+		//session.flush();
+		//session.close();
+		return groupSaved;
+	}*/
 	
 	@Override
 	public Group getGroupByGroupName(String groupName) {
@@ -110,5 +123,24 @@ public class GroupDaoImpl extends GenericDaoImpl<Group, Long> implements GroupDa
 			session.close();
 		}
 		return groupDeleted;
+	}
+	
+	@Override
+	public User getGroupOwner(Long groupID) {
+		Session session = null;
+		User user = null;
+		try {
+			session = getSessionFactory().openSession();
+			String queryString = "from User u join fetch u.groups g where g.groupID = :gid";
+			Query query = session.createQuery(queryString);
+			query.setParameter("gid", groupID);
+			user = (User)query.uniqueResult();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+		} finally {
+			session.close();
+		}
+		return user;
 	}
 }

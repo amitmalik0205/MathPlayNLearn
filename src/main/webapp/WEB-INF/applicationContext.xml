@@ -38,7 +38,9 @@
 		</property>
 	</bean>
 	
-	<bean id="emailUtil" class=" com.qait.mathplaynlearn.util.EmailUtil">
+	<util:properties id="apnConfiguration" location="classpath:/properties/apn.properties"/>
+	
+<!-- 	<bean id="emailUtil" class=" com.qait.mathplaynlearn.util.EmailUtil">
 		<property name="velocityEngine" ref="velocityEngine"/>
 		<property name="templateFileFolder" value="velocitytemplates"/>
 	</bean>
@@ -50,6 +52,6 @@
 		        class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 		   </value>
 		</property>
-    </bean>
+    </bean> -->
 	    
 </beans>

@@ -70,8 +70,9 @@ public class GameDetailsDaoImpl extends GenericDaoImpl<GameDetails, Long> implem
 					+ "join game_details gd on gd.user_id = gm.member_id join user u on u.id = gd.user_id "
 					+ "where gd.game_id = :gameid and gm.group_id = :gid";
 			Query query = session.createSQLQuery(queryStr);*/
-			String queryStr = "Select u.userID, gd.level, gd.userScore, gm.status from GroupMember gm join gm.group g "+
-							"join gm.member u join u.gameDetails gd where g.groupID = :gid and gd.game.gameId = :gameid";
+			String queryStr = "SELECT u.userID, gd.level, gd.userScore, gm.status from GroupMember gm JOIN gm.group g "+
+							"JOIN gm.member u JOIN u.gameDetails gd WHERE g.groupID = :gid and gd.game.gameId = :gameid "
+							+ " ORDER BY gd.userScore DESC";
 			Query query = session.createQuery(queryStr);
 			query.setParameter("gid", groupID);
 			query.setParameter("gameid", gameID);

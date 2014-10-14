@@ -4,7 +4,8 @@ public enum MemberStatus {
 
 	WAITING("Waiting for approval"), 
 	ACCEPTED("Request Accepted"), 
-	DECLINED("Request Declined");
+	DECLINED("Request Declined"),
+	ADD("Add to group");
 
 	String value;
 

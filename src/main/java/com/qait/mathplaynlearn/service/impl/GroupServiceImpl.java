@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.qait.mathplaynlearn.dao.GroupDao;
 import com.qait.mathplaynlearn.domain.Group;
+import com.qait.mathplaynlearn.domain.User;
 import com.qait.mathplaynlearn.service.GroupService;
 
 @Service("groupService")
@@ -38,5 +39,10 @@ public class GroupServiceImpl implements GroupService {
 	@Override
 	public boolean delete(Group group) {
 		return groupDao.delete(group);
+	}
+	
+	@Override
+	public User getGroupOwner(Long groupID) {
+		return groupDao.getGroupOwner(groupID);
 	}
 }

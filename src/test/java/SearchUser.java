@@ -2,8 +2,6 @@ import java.io.IOException;
 
 import javax.xml.bind.JAXBException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 
 public class SearchUser {
 

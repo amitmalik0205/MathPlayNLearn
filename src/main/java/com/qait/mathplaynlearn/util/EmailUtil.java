@@ -1,31 +1,7 @@
 package com.qait.mathplaynlearn.util;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-
-import org.apache.log4j.Logger;
-import org.apache.velocity.app.VelocityEngine;
-import org.springframework.ui.velocity.VelocityEngineUtils;
-
-import com.qait.mathplaynlearn.dto.SendPasswordDTO;
-import com.qait.mathplaynlearn.enums.EmailType;
-
-public class EmailUtil {
+public class EmailUtil {/*
 	
 	private static final Logger logger = Logger.getLogger(EmailUtil.class);
 	
@@ -45,7 +21,7 @@ public class EmailUtil {
 		Map<String, Object> model = createTemplateModel(emailtype, templateModel);
 		String templateFilePath = getTemplateFilePath(emailtype);
 		
-		String messageBody = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, templateFilePath, model);	
+		String messageBody = "";//VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, templateFilePath, model);	
 		
 		final String emailSMTPserver = MathPlayPropertiesFileReaderUtil.getEmailProperty("mail.host");
 		final String emailServerPort = MathPlayPropertiesFileReaderUtil.getEmailProperty("mail.port");
@@ -134,4 +110,4 @@ public class EmailUtil {
 	public static void setTemplateFileFolder(String templateFileFolder) {
 		EmailUtil.templateFileFolder = templateFileFolder;
 	}
-}
+*/}

@@ -49,6 +49,9 @@ public class User implements Serializable {
 	
 	@OneToMany(mappedBy = "user")
 	private Set<GameDetails> gameDetails = new HashSet<GameDetails>();
+	
+	@Column(name = "device_token")
+	private String deviceToken;
 
 	public Long getId() {
 		return id;
@@ -120,5 +123,13 @@ public class User implements Serializable {
 
 	public void setGameDetails(Set<GameDetails> gameDetails) {
 		this.gameDetails = gameDetails;
+	}
+
+	public String getDeviceToken() {
+		return deviceToken;
+	}
+
+	public void setDeviceToken(String deviceToken) {
+		this.deviceToken = deviceToken;
 	}
 }

@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 
 import com.qait.mathplaynlearn.dao.UserDao;
 import com.qait.mathplaynlearn.domain.User;
+import com.qait.mathplaynlearn.dto.GroupMemberInfoDTO;
+import com.qait.mathplaynlearn.enums.MemberStatus;
 import com.qait.mathplaynlearn.util.MathPlayNLearnUtil;
 
 @Repository("userDao")
@@ -107,15 +109,16 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 	}
 	
 	@Override
-	public List<Object[]> getMatchingUserID(String str) {
-		List<Object[]> list = new ArrayList<Object[]>();
+	public List<GroupMemberInfoDTO> getMatchingUserID(String str) {
+		List<GroupMemberInfoDTO> list = new ArrayList<GroupMemberInfoDTO>();
 		Session session =null;
 		try {
 			session = getSessionFactory().openSession();
-			String queryString = "Select u.id,u.userID,'ADD TO GROUP' from User u where u.userID like '"+str+"%'";
+			String queryString = "Select new com.qait.mathplaynlearn.dto.GroupMemberInfoDTO(u.id,u.userID) from User u where u.userID like '"+str+"%'";
 			Query query = session.createQuery(queryString);
 			list = query.list();
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
 		} finally {
 			session.close();
@@ -158,12 +161,13 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 	}
 	
 	@Override
-	public List<Object[]> getMatchingUserIDForGroup(String str, long groupID) {
-		List<Object[]> list = new ArrayList<Object[]>();
+	public List<GroupMemberInfoDTO> getMatchingUserIDForGroup(String str, long groupID) {
+		List<GroupMemberInfoDTO> list = new ArrayList<GroupMemberInfoDTO>();
 		Session session =null;
 		try {
 			session = getSessionFactory().openSession();
-			String queryString = "Select u.id,u.userID,gm.status from GroupMember gm join gm.member u where gm.group.groupID=:gid and u.userID like '"+str+"%'";
+			String queryString = "Select new com.qait.mathplaynlearn.dto.GroupMemberInfoDTO(u.id,u.userID,gm.status) "
+					+ " from GroupMember gm join gm.member u where gm.group.groupID=:gid and u.userID like '"+str+"%'";
 			Query query = session.createQuery(queryString);
 			query.setParameter("gid", groupID);
 			list = query.list();

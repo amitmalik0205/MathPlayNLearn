@@ -14,6 +14,22 @@ public class GroupMemberInfoDTO implements Serializable {
 	
 	private MemberStatus status;
 
+	public GroupMemberInfoDTO() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public GroupMemberInfoDTO(long userKey, String userID) {
+		this.userKey = userKey;
+		this.userID = userID;
+		this.status = MemberStatus.ADD;
+	}
+	
+	public GroupMemberInfoDTO(long userKey, String userID, MemberStatus status) {
+		this.userKey = userKey;
+		this.userID = userID;
+		this.status = status;
+	}
+	
 	public long getUserKey() {
 		return userKey;
 	}

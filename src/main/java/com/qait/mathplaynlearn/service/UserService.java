@@ -5,6 +5,7 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import com.qait.mathplaynlearn.domain.User;
+import com.qait.mathplaynlearn.dto.GroupMemberInfoDTO;
 
 public interface UserService {
 
@@ -12,7 +13,7 @@ public interface UserService {
 	
 	public User authenticateUser(String userId, String password);
 	
-	public List<Object[]> getMatchingUserID(String str);
+	public List<GroupMemberInfoDTO> getMatchingUserID(String str);
 	
 	public User getUserByUserId(String userId);
 	
@@ -20,5 +21,5 @@ public interface UserService {
 	
 	public User getUser(long id);
 	
-	public List<Object[]> getMatchingUserIDForGroup(String str, long groupID);
+	public List<GroupMemberInfoDTO> getMatchingUserIDForGroup(String str, long groupID);
 }

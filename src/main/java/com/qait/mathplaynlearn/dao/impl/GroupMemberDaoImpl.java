@@ -40,6 +40,18 @@ public class GroupMemberDaoImpl extends GenericDaoImpl<GroupMember, Long> implem
 		return isSaved;
 	}
 	
+/*	@Override
+	public boolean saveMember(GroupMember member) {
+		boolean isSaved = true;
+		Session session = null;
+		session = getSessionFactory().openSession();
+		session.saveOrUpdate(member);
+		int i = 1/0;
+		//session.flush();
+		//session.close();
+		return isSaved;
+	}*/
+	
 	@Override
 	public List<Object[]> getMembersInfoByGroup(long groupID) {
 		List<Object[]> list = new ArrayList<Object[]>();

@@ -17,9 +17,9 @@ public class CreateUser {
 		question.setQuestionId(1L);
 		
 		User user = new User();
-		user.setUserID("akai");
+		user.setUserID("sum");
 		user.setAnswer("my ans");
-		user.setPassword("123");
+		user.setPassword("1234");
 		user.setSecurityQuestion(question);
 		
 		

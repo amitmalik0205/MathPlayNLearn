@@ -1,7 +1,9 @@
 package com.qait.mathplaynlearn.rest.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.ws.rs.Consumes;
@@ -15,8 +17,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.qait.mathplaynlearn.domain.Game;
@@ -27,6 +32,7 @@ import com.qait.mathplaynlearn.domain.SecurityQuestion;
 import com.qait.mathplaynlearn.domain.User;
 import com.qait.mathplaynlearn.dto.GroupDTO;
 import com.qait.mathplaynlearn.dto.GroupMemberDTO;
+import com.qait.mathplaynlearn.dto.GroupMemberInfoDTO;
 import com.qait.mathplaynlearn.dto.GroupScoreDTO;
 import com.qait.mathplaynlearn.enums.MemberStatus;
 import com.qait.mathplaynlearn.rest.dto.GameDetailsDTO;
@@ -36,6 +42,7 @@ import com.qait.mathplaynlearn.service.GroupMemberService;
 import com.qait.mathplaynlearn.service.GroupService;
 import com.qait.mathplaynlearn.service.SecurityQuestionService;
 import com.qait.mathplaynlearn.service.UserService;
+import com.qait.mathplaynlearn.util.MathPlayNLearnUtil;
 import com.qait.mathplaynlearn.util.MathPlayPropertiesFileReaderUtil;
 
 @Path("math-play-service")
@@ -44,13 +51,41 @@ public class MathPlayNLearnService {
 	private static final Logger logger = Logger
 			.getLogger(MathPlayNLearnService.class);
 
-	ApplicationContext appContext = new ClassPathXmlApplicationContext(
-			"../applicationContext.xml");
+	@Autowired
+	private SecurityQuestionService questionService;
+	
+	@Autowired
+	private GameDetailsService detailsService;
+	
+	@Autowired
+	private GameService gameService;
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private GroupService groupService;
+	
+	@Autowired
+	private GroupMemberService memberService;
+	
+	@Autowired
+	@Qualifier("apnConfiguration")
+	private Properties apnConfigurationProperties;
+	
+	ApplicationContext appContext = new ClassPathXmlApplicationContext("../applicationContext.xml");
 
 	@Path("/text")
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
-	public String text() {
+	public String text() throws IOException {
+		System.out.println(apnConfigurationProperties.getProperty("certificate.file.password"));
+		String ceritficateFileName = apnConfigurationProperties.getProperty("certificate.file");
+		Resource resource = appContext.getResource("classpath:/apn/"+ceritficateFileName);
+		System.out.println(resource.getFilename());
+		System.out.println(resource.getURI());
+		System.out.println(resource.getURL());
+		System.out.println(resource.getFile());
 		return "Its working";
 	}
 
@@ -76,8 +111,6 @@ public class MathPlayNLearnService {
 	@Path("get-security-questions")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getSecurityQuestions() {
-		SecurityQuestionService questionService = (SecurityQuestionService) appContext
-				.getBean("securityQuestionService");
 		return Response.status(200).entity(questionService.getAllQuestions())
 				.build();
 	}
@@ -87,8 +120,6 @@ public class MathPlayNLearnService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response registerUser(User user) {
-		UserService userService = (UserService) appContext
-				.getBean("userService");
 		return userService.saveUser(user);
 	}
 
@@ -97,8 +128,6 @@ public class MathPlayNLearnService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response authinticateUser(User user) {
-		UserService userService = (UserService) appContext
-				.getBean("userService");
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
 
 		if (userService.authenticateUser(user.getUserID(), user.getPassword()) != null) {
@@ -126,17 +155,13 @@ public class MathPlayNLearnService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response searchUser(@QueryParam("userIDString") String searchStr, @QueryParam("groupID") long groupID) {
-		UserService userService = (UserService) appContext
-				.getBean("userService");
-
-		List<Object[]> groupList = userService.getMatchingUserIDForGroup(
+		List<GroupMemberInfoDTO> groupList = userService.getMatchingUserIDForGroup(
 				searchStr, groupID);
-		List<Object[]> fullList = new CopyOnWriteArrayList<Object[]>(
-				userService.getMatchingUserID(searchStr));
+		List<GroupMemberInfoDTO> fullList = new CopyOnWriteArrayList<GroupMemberInfoDTO>(userService.getMatchingUserID(searchStr));
 
-		for(Object[] outer : groupList) {
-			for(Object[] inner : fullList) {
-				if(((Long)outer[0]).equals((Long)inner[0])) {
+		for(GroupMemberInfoDTO outer : groupList) {
+			for(GroupMemberInfoDTO inner : fullList) {
+				if(outer.getUserKey() == inner.getUserKey()) {
 					fullList.remove(inner);
 					break;
 				}
@@ -153,9 +178,6 @@ public class MathPlayNLearnService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response recoverPassword(User user) {
-		UserService userService = (UserService) appContext
-				.getBean("userService");
-
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
 
 		User savedUser = userService.getUserWithSecurityQuestion(user
@@ -253,14 +275,6 @@ public class MathPlayNLearnService {
 	@Consumes(value = MediaType.APPLICATION_JSON)
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public Response saveUserGameScore(GameDetailsDTO details) {
-
-		GameDetailsService detailsService = (GameDetailsService) appContext
-				.getBean("gameDetailsService");
-		UserService userService = (UserService) appContext
-				.getBean("userService");
-		GameService gameService = (GameService) appContext
-				.getBean("gameService");
-
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
 
 		response.setCode("saveUserScore001");
@@ -347,18 +361,6 @@ public class MathPlayNLearnService {
 	@Transactional
 	public Response createGroup(@QueryParam("userID") String userID,
 			@QueryParam("groupName") String groupName) {
-		
-		MathPlayNLearnServiceAdapter adapter = (MathPlayNLearnServiceAdapter) appContext
-				.getBean("mathPlayNLearnServiceAdapter");
-		
-		return adapter.createGroup(userID, groupName);
-
-/*		UserService userService = (UserService) appContext
-				.getBean("userService");
-		GroupService groupService = (GroupService) appContext
-				.getBean("groupService");
-		GroupMemberService memberService = (GroupMemberService) appContext
-				.getBean("groupMemberService");
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
 
 		User user = userService.getUserByUserId(userID);
@@ -403,8 +405,7 @@ public class MathPlayNLearnService {
 				}
 			}
 		}
-
-		return Response.status(200).entity(response).build();*/
+		return Response.status(200).entity(response).build();
 	}
 
 	@GET
@@ -412,9 +413,6 @@ public class MathPlayNLearnService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getGroupList(@QueryParam("userID") String ownerId) {
-		GroupService groupService = (GroupService) appContext
-				.getBean("groupService");
-
 		List<Group> list = groupService.getGroupListForOwner(ownerId);
 		List<GroupDTO> groupList = new ArrayList<GroupDTO>();
 
@@ -433,12 +431,6 @@ public class MathPlayNLearnService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response addMemberToGroup(GroupMemberDTO member) {
 		boolean isSaved = false;
-		GroupService groupService = (GroupService) appContext
-				.getBean("groupService");
-		UserService userService = (UserService) appContext
-				.getBean("userService");
-		GroupMemberService memberService = (GroupMemberService) appContext
-				.getBean("groupMemberService");
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
 
 		response.setCode("addMemberToGroup001");
@@ -451,14 +443,36 @@ public class MathPlayNLearnService {
 		if (savedUser != null && savedgroup != null) {
 			GroupMember groupMember = new GroupMember(savedUser, savedgroup,
 					MemberStatus.WAITING);
-
 			isSaved = memberService.saveMember(groupMember);
 		}
 
 		if (!isSaved) {
+			
 			response.setCode("addMemberToGroup002");
 			response.setMessage(MathPlayPropertiesFileReaderUtil
 					.getPropertyValue("addMemberToGroup002"));
+		} else {
+			//Send Push Notification to user
+			User groupOwner = groupService.getGroupOwner(savedgroup.getGroupID());
+
+			if(groupOwner != null) {
+				
+				String certificateFileName = apnConfigurationProperties.getProperty("certificate.file");
+				String password = apnConfigurationProperties.getProperty("certificate.file.password");
+				
+				StringBuilder message = new StringBuilder(groupOwner.getUserID());
+				message.append(" has requested you to join group ");
+				message.append(savedgroup.getGroupName());
+				
+				Resource resource = appContext.getResource("classpath:/apn/"+certificateFileName);
+				
+				try {
+					MathPlayNLearnUtil.sendNotification(resource.getFile().toString(), password, savedUser.getDeviceToken(), message.toString());
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+				}
+			}
 		}
 
 		return Response.status(200).entity(response).build();
@@ -468,8 +482,6 @@ public class MathPlayNLearnService {
 	@Path("get-group-members/{groupID}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response listGroupMembers(@PathParam("groupID") long groupID) {
-		GroupMemberService memberService = (GroupMemberService) appContext
-				.getBean("groupMemberService");
 		return Response.status(200)
 				.entity(memberService.getMembersInfoByGroup(groupID)).build();
 	}
@@ -479,8 +491,6 @@ public class MathPlayNLearnService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response deleteMember(GroupMemberDTO dto) {
-		GroupMemberService memberService = (GroupMemberService) appContext
-				.getBean("groupMemberService");
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
 		
 		boolean isDeleted = memberService.deleteGroupMember(dto.getGroupID(), dto.getUserKey());
@@ -503,8 +513,6 @@ public class MathPlayNLearnService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response deleteGroup(GroupMemberDTO dto) {
-		GroupService groupService = (GroupService) appContext
-				.getBean("groupService");
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
 		
 		Group savedGroup = groupService.getGroupByGroupId(dto.getGroupID());
@@ -537,11 +545,6 @@ public class MathPlayNLearnService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getGroupScore(GroupScoreDTO dto) {
-		GameService gameService = (GameService) appContext
-				.getBean("gameService");
-		GameDetailsService detailsService = (GameDetailsService) appContext
-				.getBean("gameDetailsService");
-
 		Game savedGame = gameService.getGameByNameAndClass(dto.getGameName(),
 				dto.getGameClass());
 
@@ -568,9 +571,6 @@ public class MathPlayNLearnService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getTotalScoreForUser(@PathParam("groupID") long groupID) {
-		GameDetailsService detailsService = (GameDetailsService) appContext
-				.getBean("gameDetailsService");
-		
 		List<Object[]> list = new ArrayList<Object[]>();
 		
 		list = detailsService.getTotalScoreForUser(groupID);

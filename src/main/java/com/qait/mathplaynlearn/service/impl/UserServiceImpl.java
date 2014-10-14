@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.qait.mathplaynlearn.dao.UserDao;
 import com.qait.mathplaynlearn.domain.User;
+import com.qait.mathplaynlearn.dto.GroupMemberInfoDTO;
 import com.qait.mathplaynlearn.rest.service.MathPlayNLearnServiceResponse;
 import com.qait.mathplaynlearn.service.UserService;
 import com.qait.mathplaynlearn.util.MathPlayPropertiesFileReaderUtil;
@@ -49,7 +50,7 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public List<Object[]> getMatchingUserID(String str) {
+	public List<GroupMemberInfoDTO> getMatchingUserID(String str) {
 		return userDao.getMatchingUserID(str);
 	}
 	
@@ -69,7 +70,7 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public List<Object[]> getMatchingUserIDForGroup(String str, long groupID) {
+	public List<GroupMemberInfoDTO> getMatchingUserIDForGroup(String str, long groupID) {
 		return userDao.getMatchingUserIDForGroup(str, groupID);
 	}
 	

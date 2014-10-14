@@ -28,6 +28,7 @@ public class SecurityQuestionDaoImpl extends GenericDaoImpl<SecurityQuestion, Lo
 			Query query = session.createQuery(queryString);
 			list = query.list();
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
 		} finally {
 			session.close();
