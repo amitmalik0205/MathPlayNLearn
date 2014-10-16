@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.qait.mathplaynlearn.dao.GroupMemberDao;
 import com.qait.mathplaynlearn.domain.GroupMember;
+import com.qait.mathplaynlearn.dto.GetInvitationsDTO;
 import com.qait.mathplaynlearn.dto.GroupMemberInfoDTO;
 import com.qait.mathplaynlearn.enums.MemberStatus;
 import com.qait.mathplaynlearn.service.GroupMemberService;
@@ -46,6 +47,11 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 	@Override
 	public boolean deleteGroupMember(long groupID, long memberID) {
 		return groupMemberDao.deleteGroupMember(groupID, memberID);
+	}
+	
+	@Override
+	public List<GetInvitationsDTO> getGroupInvitationsForUser(String userID) {
+		return groupMemberDao.getGroupInvitationsForUser(userID);
 	}
 	
 	public GroupMemberDao getGroupMemberDao() {

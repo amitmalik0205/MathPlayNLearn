@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 
 import com.qait.mathplaynlearn.dao.GroupMemberDao;
 import com.qait.mathplaynlearn.domain.GroupMember;
+import com.qait.mathplaynlearn.dto.GetInvitationsDTO;
+import com.qait.mathplaynlearn.enums.MemberStatus;
 import com.qait.mathplaynlearn.util.MathPlayNLearnUtil;
 
 @Repository("groupMemberDao")
@@ -114,5 +116,27 @@ public class GroupMemberDaoImpl extends GenericDaoImpl<GroupMember, Long> implem
 			session.close();
 		}
 		return isDeleted;
+	}
+	
+	@Override
+	public List<GetInvitationsDTO> getGroupInvitationsForUser(String userID) {
+		List<GetInvitationsDTO> list = null;
+		Session session = null;
+		try {
+			session = getSessionFactory().openSession();
+			String queryStr = "Select new com.qait.mathplaynlearn.dto.GetInvitationsDTO(g.groupName, g.groupID, u.userID, m.id) "
+					+ " from GroupMember gm join gm.group g join g.groupOwner u join gm.member m where m.userID = :uid and gm.status = :status";
+			Query query = session.createQuery(queryStr);
+			query.setString("uid", userID);
+			query.setParameter("status", MemberStatus.WAITING);
+			list = query.list();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+		} finally {
+			session.close();
+		}
+		return list;
 	}
 }

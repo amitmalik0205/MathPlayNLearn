@@ -30,10 +30,12 @@ import com.qait.mathplaynlearn.domain.Group;
 import com.qait.mathplaynlearn.domain.GroupMember;
 import com.qait.mathplaynlearn.domain.SecurityQuestion;
 import com.qait.mathplaynlearn.domain.User;
+import com.qait.mathplaynlearn.dto.GetInvitationsDTO;
 import com.qait.mathplaynlearn.dto.GroupDTO;
 import com.qait.mathplaynlearn.dto.GroupMemberDTO;
 import com.qait.mathplaynlearn.dto.GroupMemberInfoDTO;
 import com.qait.mathplaynlearn.dto.GroupScoreDTO;
+import com.qait.mathplaynlearn.dto.UpdateInvitationStatusDTO;
 import com.qait.mathplaynlearn.enums.MemberStatus;
 import com.qait.mathplaynlearn.rest.dto.GameDetailsDTO;
 import com.qait.mathplaynlearn.service.GameDetailsService;
@@ -79,13 +81,6 @@ public class MathPlayNLearnService {
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	public String text() throws IOException {
-		System.out.println(apnConfigurationProperties.getProperty("certificate.file.password"));
-		String ceritficateFileName = apnConfigurationProperties.getProperty("certificate.file");
-		Resource resource = appContext.getResource("classpath:/apn/"+ceritficateFileName);
-		System.out.println(resource.getFilename());
-		System.out.println(resource.getURI());
-		System.out.println(resource.getURL());
-		System.out.println(resource.getFile());
 		return "Its working";
 	}
 
@@ -576,5 +571,53 @@ public class MathPlayNLearnService {
 		list = detailsService.getTotalScoreForUser(groupID);
 		
 		return Response.status(200).entity(list).build();
+	}
+	
+	@GET
+	@Path("get-invitations/{userID}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getInvitations(@PathParam("userID") String userID) {
+
+		List<GetInvitationsDTO> list = memberService
+				.getGroupInvitationsForUser(userID);
+		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
+
+		if (list == null) {
+			response.setCode("getInvitations001");
+			response.setMessage(MathPlayPropertiesFileReaderUtil
+					.getPropertyValue("getInvitations001"));
+			return Response.status(200).entity(response).build();
+		}
+
+		return Response.status(200).entity(list).build();
+	}
+	
+	@POST
+	@Path("update-invitation-status")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updateInvitationStatus(UpdateInvitationStatusDTO dto) {
+		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
+		GroupMember member = memberService.getGroupMemberByID(dto.getGroupID(),
+				dto.getMemberID());
+
+		if (member == null) {
+			response.setCode("updateInvitationStatus002");
+			response.setMessage(MathPlayPropertiesFileReaderUtil
+					.getPropertyValue("updateInvitationStatus002"));
+		} else {
+
+			member.setStatus(dto.getStatus());
+			boolean isSaved = memberService.saveMember(member);
+
+			if (!isSaved) {
+				response.setCode("updateInvitationStatus001");
+				response.setMessage(MathPlayPropertiesFileReaderUtil
+						.getPropertyValue("updateInvitationStatus001"));
+			}
+		}
+
+		return Response.status(200).entity(response).build();
 	}
 }
