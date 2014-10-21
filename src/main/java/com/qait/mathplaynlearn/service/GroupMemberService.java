@@ -17,4 +17,6 @@ public interface GroupMemberService {
 	public boolean deleteGroupMember(long groupID, long memberID);
 	
 	public List<GetInvitationsDTO> getGroupInvitationsForUser(String userID);
+	
+	public Long getInvitationCount(String userID);
 }

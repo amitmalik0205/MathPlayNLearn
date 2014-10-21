@@ -17,9 +17,12 @@ public class CreateUser {
 		question.setQuestionId(1L);
 		
 		User user = new User();
-		user.setUserID("sum");
-		user.setAnswer("my ans");
+		user.setUserID("amit0205");
+		user.setAnswer("Answer");
 		user.setPassword("1234");
+		user.setCity("Delhi");
+		user.setCountry("India");
+		user.setName("Amit");
 		user.setSecurityQuestion(question);
 		
 		

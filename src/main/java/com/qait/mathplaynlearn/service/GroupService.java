@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.qait.mathplaynlearn.domain.Group;
 import com.qait.mathplaynlearn.domain.User;
+import com.qait.mathplaynlearn.dto.GroupDTO;
 
 public interface GroupService {
 
@@ -18,4 +19,6 @@ public interface GroupService {
 	public boolean delete(Group group);
 	
 	public User getGroupOwner(Long groupID);
+	
+	public List<GroupDTO> getGroupListForMember(String memberID);
 }

@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.qait.mathplaynlearn.domain.Game;
@@ -30,6 +29,7 @@ import com.qait.mathplaynlearn.domain.Group;
 import com.qait.mathplaynlearn.domain.GroupMember;
 import com.qait.mathplaynlearn.domain.SecurityQuestion;
 import com.qait.mathplaynlearn.domain.User;
+import com.qait.mathplaynlearn.dto.CreateGroupResponseDTO;
 import com.qait.mathplaynlearn.dto.GetInvitationsDTO;
 import com.qait.mathplaynlearn.dto.GroupDTO;
 import com.qait.mathplaynlearn.dto.GroupMemberDTO;
@@ -44,7 +44,6 @@ import com.qait.mathplaynlearn.service.GroupMemberService;
 import com.qait.mathplaynlearn.service.GroupService;
 import com.qait.mathplaynlearn.service.SecurityQuestionService;
 import com.qait.mathplaynlearn.service.UserService;
-import com.qait.mathplaynlearn.util.MathPlayNLearnUtil;
 import com.qait.mathplaynlearn.util.MathPlayPropertiesFileReaderUtil;
 
 @Path("math-play-service")
@@ -55,27 +54,28 @@ public class MathPlayNLearnService {
 
 	@Autowired
 	private SecurityQuestionService questionService;
-	
+
 	@Autowired
 	private GameDetailsService detailsService;
-	
+
 	@Autowired
 	private GameService gameService;
-	
+
 	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	private GroupService groupService;
-	
+
 	@Autowired
 	private GroupMemberService memberService;
-	
+
 	@Autowired
 	@Qualifier("apnConfiguration")
 	private Properties apnConfigurationProperties;
-	
-	ApplicationContext appContext = new ClassPathXmlApplicationContext("../applicationContext.xml");
+
+	ApplicationContext appContext = new ClassPathXmlApplicationContext(
+			"../applicationContext.xml");
 
 	@Path("/text")
 	@GET
@@ -149,22 +149,24 @@ public class MathPlayNLearnService {
 	@Path("search-user")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response searchUser(@QueryParam("userIDString") String searchStr, @QueryParam("groupID") long groupID) {
-		List<GroupMemberInfoDTO> groupList = userService.getMatchingUserIDForGroup(
-				searchStr, groupID);
-		List<GroupMemberInfoDTO> fullList = new CopyOnWriteArrayList<GroupMemberInfoDTO>(userService.getMatchingUserID(searchStr));
+	public Response searchUser(@QueryParam("userIDString") String searchStr,
+			@QueryParam("groupID") long groupID) {
+		List<GroupMemberInfoDTO> groupList = userService
+				.getMatchingUserIDForGroup(searchStr, groupID);
+		List<GroupMemberInfoDTO> fullList = new CopyOnWriteArrayList<GroupMemberInfoDTO>(
+				userService.getMatchingUserID(searchStr));
 
-		for(GroupMemberInfoDTO outer : groupList) {
-			for(GroupMemberInfoDTO inner : fullList) {
-				if(outer.getUserKey() == inner.getUserKey()) {
+		for (GroupMemberInfoDTO outer : groupList) {
+			for (GroupMemberInfoDTO inner : fullList) {
+				if (outer.getUserKey() == inner.getUserKey()) {
 					fullList.remove(inner);
 					break;
 				}
 			}
 		}
-		
+
 		groupList.addAll(fullList);
-		
+
 		return Response.status(200).entity(groupList).build();
 	}
 
@@ -356,7 +358,7 @@ public class MathPlayNLearnService {
 	@Transactional
 	public Response createGroup(@QueryParam("userID") String userID,
 			@QueryParam("groupName") String groupName) {
-		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
+		CreateGroupResponseDTO response = new CreateGroupResponseDTO();
 
 		User user = userService.getUserByUserId(userID);
 		if (user == null) {
@@ -382,15 +384,18 @@ public class MathPlayNLearnService {
 				boolean isGroupSaved = groupService.saveGroup(newGroup);
 
 				if (isGroupSaved) {
-					
-					//Add owner as group member
-					Group createdGroup = groupService.getGroupByGroupName(groupName);
-					GroupMember groupMember = new GroupMember(user, createdGroup,MemberStatus.ACCEPTED);
+
+					// Add owner as group member
+					Group createdGroup = groupService
+							.getGroupByGroupName(groupName);
+					GroupMember groupMember = new GroupMember(user,
+							createdGroup, MemberStatus.ACCEPTED);
 					memberService.saveMember(groupMember);
 
 					response.setCode("createGroup001");
 					response.setMessage(MathPlayPropertiesFileReaderUtil
 							.getPropertyValue("createGroup001"));
+					response.setGroupID(createdGroup.getGroupID());
 
 				} else {
 
@@ -442,37 +447,39 @@ public class MathPlayNLearnService {
 		}
 
 		if (!isSaved) {
-			
+
 			response.setCode("addMemberToGroup002");
 			response.setMessage(MathPlayPropertiesFileReaderUtil
 					.getPropertyValue("addMemberToGroup002"));
-		} else {
-			//Send Push Notification to user
-			User groupOwner = groupService.getGroupOwner(savedgroup.getGroupID());
-
-			if(groupOwner != null) {
-				
-				String certificateFileName = apnConfigurationProperties.getProperty("certificate.file");
-				String password = apnConfigurationProperties.getProperty("certificate.file.password");
-				
-				StringBuilder message = new StringBuilder(groupOwner.getUserID());
-				message.append(" has requested you to join group ");
-				message.append(savedgroup.getGroupName());
-				
-				Resource resource = appContext.getResource("classpath:/apn/"+certificateFileName);
-				
-				try {
-					MathPlayNLearnUtil.sendNotification(resource.getFile().toString(), password, savedUser.getDeviceToken(), message.toString());
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
-				}
-			}
-		}
+		} /*
+		 * else { //Send Push Notification to user User groupOwner =
+		 * groupService.getGroupOwner(savedgroup.getGroupID());
+		 * 
+		 * if(groupOwner != null) {
+		 * 
+		 * String certificateFileName =
+		 * apnConfigurationProperties.getProperty("certificate.file"); String
+		 * password =
+		 * apnConfigurationProperties.getProperty("certificate.file.password");
+		 * 
+		 * StringBuilder message = new StringBuilder(groupOwner.getUserID());
+		 * message.append(" has requested you to join group ");
+		 * message.append(savedgroup.getGroupName());
+		 * 
+		 * Resource resource =
+		 * appContext.getResource("classpath:/apn/"+certificateFileName);
+		 * 
+		 * try {
+		 * MathPlayNLearnUtil.sendNotification(resource.getFile().toString(),
+		 * password, savedUser.getDeviceToken(), message.toString()); } catch
+		 * (Exception e) { e.printStackTrace();
+		 * logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e)); }
+		 * } }
+		 */
 
 		return Response.status(200).entity(response).build();
 	}
-	
+
 	@GET
 	@Path("get-group-members/{groupID}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -480,17 +487,18 @@ public class MathPlayNLearnService {
 		return Response.status(200)
 				.entity(memberService.getMembersInfoByGroup(groupID)).build();
 	}
-	
+
 	@POST
 	@Path("delete-member-from-group")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response deleteMember(GroupMemberDTO dto) {
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
-		
-		boolean isDeleted = memberService.deleteGroupMember(dto.getGroupID(), dto.getUserKey());
-		
-		if(isDeleted) {
+
+		boolean isDeleted = memberService.deleteGroupMember(dto.getGroupID(),
+				dto.getUserKey());
+
+		if (isDeleted) {
 			response.setCode("deleteMemberFromGroup001");
 			response.setMessage(MathPlayPropertiesFileReaderUtil
 					.getPropertyValue("deleteMemberFromGroup001"));
@@ -499,42 +507,42 @@ public class MathPlayNLearnService {
 			response.setMessage(MathPlayPropertiesFileReaderUtil
 					.getPropertyValue("deleteMemberFromGroup002"));
 		}
-		
+
 		return Response.status(200).entity(response).build();
 	}
-	
+
 	@POST
 	@Path("delete-group")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response deleteGroup(GroupMemberDTO dto) {
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
-		
+
 		Group savedGroup = groupService.getGroupByGroupId(dto.getGroupID());
-		
-		if(savedGroup != null) {
+
+		if (savedGroup != null) {
 			boolean isDeleted = groupService.delete(savedGroup);
-			
-			if(isDeleted) {
+
+			if (isDeleted) {
 				response.setCode("deleteGroup001");
 				response.setMessage(MathPlayPropertiesFileReaderUtil
 						.getPropertyValue("deleteGroup001"));
-				
+
 			} else {
 				response.setCode("deleteGroup003");
 				response.setMessage(MathPlayPropertiesFileReaderUtil
 						.getPropertyValue("deleteGroup003"));
 			}
-			
+
 		} else {
 			response.setCode("deleteGroup002");
 			response.setMessage(MathPlayPropertiesFileReaderUtil
 					.getPropertyValue("deleteGroup002"));
 		}
-		
+
 		return Response.status(200).entity(response).build();
 	}
-	
+
 	@POST
 	@Path("get-group-score")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -560,19 +568,19 @@ public class MathPlayNLearnService {
 		}
 		return Response.status(200).entity(list).build();
 	}
-	
+
 	@GET
 	@Path("get-total-user-score/{groupID}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getTotalScoreForUser(@PathParam("groupID") long groupID) {
 		List<Object[]> list = new ArrayList<Object[]>();
-		
+
 		list = detailsService.getTotalScoreForUser(groupID);
-		
+
 		return Response.status(200).entity(list).build();
 	}
-	
+
 	@GET
 	@Path("get-invitations/{userID}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -592,7 +600,7 @@ public class MathPlayNLearnService {
 
 		return Response.status(200).entity(list).build();
 	}
-	
+
 	@POST
 	@Path("update-invitation-status")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -601,6 +609,10 @@ public class MathPlayNLearnService {
 		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
 		GroupMember member = memberService.getGroupMemberByID(dto.getGroupID(),
 				dto.getMemberID());
+
+		response.setCode("updateInvitationStatus003");
+		response.setMessage(MathPlayPropertiesFileReaderUtil
+				.getPropertyValue("updateInvitationStatus003"));
 
 		if (member == null) {
 			response.setCode("updateInvitationStatus002");
@@ -619,5 +631,33 @@ public class MathPlayNLearnService {
 		}
 
 		return Response.status(200).entity(response).build();
+	}
+
+	@GET
+	@Path("get-invitation-count/{userID}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getInvitationCount(@PathParam("userID") String userID) {
+		Long count = memberService.getInvitationCount(userID);
+		MathPlayNLearnServiceResponse response = new MathPlayNLearnServiceResponse();
+
+		if (count == null) {
+			response.setCode("getInvitationcount001");
+			response.setMessage(MathPlayPropertiesFileReaderUtil
+					.getPropertyValue("getInvitationcount001"));
+			return Response.status(200).entity(response).build();
+		}
+
+		return Response.status(200).entity(count).build();
+	}
+	
+	@GET
+	@Path("group-list-for-member/{userID}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getGroupListForMember(@PathParam("userID") String userID) {
+		List<GroupDTO> list = groupService.getGroupListForMember(userID);
+	
+		return Response.status(200).entity(list).build();
 	}
 }

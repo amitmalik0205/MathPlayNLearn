@@ -10,6 +10,15 @@ public class GroupDTO implements Serializable {
 	private Long groupID;
 
 	private String groupName;
+	
+	public GroupDTO(Long groupID, String groupName) {
+		this.groupID = groupID;
+		this.groupName = groupName;
+	}
+	
+	public GroupDTO() {
+		// TODO Auto-generated constructor stub
+	}
 
 	public Long getGroupID() {
 		return groupID;

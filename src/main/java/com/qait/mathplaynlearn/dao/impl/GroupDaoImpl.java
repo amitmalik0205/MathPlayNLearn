@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 import com.qait.mathplaynlearn.dao.GroupDao;
 import com.qait.mathplaynlearn.domain.Group;
 import com.qait.mathplaynlearn.domain.User;
+import com.qait.mathplaynlearn.dto.GroupDTO;
+import com.qait.mathplaynlearn.enums.MemberStatus;
 import com.qait.mathplaynlearn.util.MathPlayNLearnUtil;
 
 @Repository("groupDao")
@@ -142,5 +144,29 @@ public class GroupDaoImpl extends GenericDaoImpl<Group, Long> implements GroupDa
 			session.close();
 		}
 		return user;
+	}
+	
+	@Override
+	public List<GroupDTO> getGroupListForMember(String memberID) {
+		Session session = null;
+		List<GroupDTO> list = new ArrayList<GroupDTO>();
+		try {
+			session = getSessionFactory().openSession();
+			String queryString = "Select new com.qait.mathplaynlearn.dto.GroupDTO(g.groupID, g.groupName) from GroupMember gm "
+					+ " join gm.group g join gm.member m join g.groupOwner u where u.userID <> :memberID "
+					+ " and m.userID = :memberID and gm.status <> :status";
+			Query query = session.createQuery(queryString);
+			query.setString("memberID", memberID);
+			query.setParameter("status", MemberStatus.WAITING);
+			list = query.list();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+		} finally {
+			session.close();
+		}
+		return list;
+	
+		
 	}
 }

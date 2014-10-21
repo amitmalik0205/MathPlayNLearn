@@ -16,9 +16,11 @@ import com.qait.mathplaynlearn.enums.MemberStatus;
 import com.qait.mathplaynlearn.util.MathPlayNLearnUtil;
 
 @Repository("groupMemberDao")
-public class GroupMemberDaoImpl extends GenericDaoImpl<GroupMember, Long> implements GroupMemberDao {
+public class GroupMemberDaoImpl extends GenericDaoImpl<GroupMember, Long>
+		implements GroupMemberDao {
 
-	private static final Logger logger = Logger.getLogger(GroupMemberDaoImpl.class);
+	private static final Logger logger = Logger
+			.getLogger(GroupMemberDaoImpl.class);
 
 	@Override
 	public boolean saveMember(GroupMember member) {
@@ -41,19 +43,14 @@ public class GroupMemberDaoImpl extends GenericDaoImpl<GroupMember, Long> implem
 		}
 		return isSaved;
 	}
-	
-/*	@Override
-	public boolean saveMember(GroupMember member) {
-		boolean isSaved = true;
-		Session session = null;
-		session = getSessionFactory().openSession();
-		session.saveOrUpdate(member);
-		int i = 1/0;
-		//session.flush();
-		//session.close();
-		return isSaved;
-	}*/
-	
+
+	/*
+	 * @Override public boolean saveMember(GroupMember member) { boolean isSaved
+	 * = true; Session session = null; session =
+	 * getSessionFactory().openSession(); session.saveOrUpdate(member); int i =
+	 * 1/0; //session.flush(); //session.close(); return isSaved; }
+	 */
+
 	@Override
 	public List<Object[]> getMembersInfoByGroup(long groupID) {
 		List<Object[]> list = new ArrayList<Object[]>();
@@ -72,7 +69,7 @@ public class GroupMemberDaoImpl extends GenericDaoImpl<GroupMember, Long> implem
 		}
 		return list;
 	}
-	
+
 	@Override
 	public GroupMember getGroupMemberByID(long groupID, long memberID) {
 		Session session = null;
@@ -83,7 +80,7 @@ public class GroupMemberDaoImpl extends GenericDaoImpl<GroupMember, Long> implem
 			Query query = session.createQuery(queryStr);
 			query.setParameter("mid", memberID);
 			query.setParameter("gid", groupID);
-			groupMember = (GroupMember)query.uniqueResult();
+			groupMember = (GroupMember) query.uniqueResult();
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
@@ -92,7 +89,7 @@ public class GroupMemberDaoImpl extends GenericDaoImpl<GroupMember, Long> implem
 		}
 		return groupMember;
 	}
-	
+
 	@Override
 	public boolean deleteGroupMember(long groupID, long memberID) {
 		Session session = null;
@@ -117,7 +114,7 @@ public class GroupMemberDaoImpl extends GenericDaoImpl<GroupMember, Long> implem
 		}
 		return isDeleted;
 	}
-	
+
 	@Override
 	public List<GetInvitationsDTO> getGroupInvitationsForUser(String userID) {
 		List<GetInvitationsDTO> list = null;
@@ -138,5 +135,26 @@ public class GroupMemberDaoImpl extends GenericDaoImpl<GroupMember, Long> implem
 			session.close();
 		}
 		return list;
+	}
+
+	@Override
+	public Long getInvitationCount(String userID) {
+		Long count = null;
+		Session session = null;
+		try {
+			session = getSessionFactory().openSession();
+			String queryStr = "Select count(*) from GroupMember gm join gm.group g join g.groupOwner u join gm.member m "
+					+ " where m.userID = :uid and gm.status = :status";
+			Query query = session.createQuery(queryStr);
+			query.setString("uid", userID);
+			query.setParameter("status", MemberStatus.WAITING);
+			count = (Long)query.uniqueResult();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.fatal(MathPlayNLearnUtil.getExceptionDescriptionString(e));
+		} finally {
+			session.close();
+		}
+		return count;
 	}
 }

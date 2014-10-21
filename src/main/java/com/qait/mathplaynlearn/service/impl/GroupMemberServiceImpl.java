@@ -54,6 +54,11 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 		return groupMemberDao.getGroupInvitationsForUser(userID);
 	}
 	
+	@Override
+	public Long getInvitationCount(String userID) {
+		return groupMemberDao.getInvitationCount(userID);
+	}
+	
 	public GroupMemberDao getGroupMemberDao() {
 		return groupMemberDao;
 	}
